@@ -1,0 +1,58 @@
+main {
+    display: flex;
+    justify-content: center;  /* по горизонтали */
+    align-items: center;      /* по вертикали */
+    height: 100vh;            /* занять всю высоту окна */
+}
+
+section {
+    /* любые стили для section, например: */
+    width: 600px;
+    height: auto;
+    border: 1px solid lightgray;
+    border-radius: 16px;
+}
+label{
+    width: 92%;
+    margin: 16px 4% 8px 4%;
+}
+input{
+    width: 90%;
+    margin: auto;
+}
+form.form_auth > div{
+    margin: 16px;
+}
+form.form_auth > div > img{
+    margin: 16px 25% 8px 25%;
+    width: 50%;
+}
+form.form_auth > p {
+    color: red;
+    margin: auto;
+    width: fit-content;
+}
+.form-group-btn{
+    margin: 36px 0;
+}
+ul.tree {
+    list-style-type: none;
+    padding-left: 20px;
+}
+ul.tree li.folder > span {
+    cursor: pointer;
+    user-select: none;
+}
+ul.tree li.folder > ul {
+    display: none;
+    margin-left: 20px;
+}
+ul.tree li.folder.open > ul {
+    display: block;
+}
+ul.tree li.folder::before {
+    content: "📁 ";
+}
+ul.tree li:not(.folder)::before {
+    content: "📄 ";
+}
