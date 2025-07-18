@@ -2,15 +2,28 @@ main {
     display: flex;
     justify-content: center;  /* по горизонтали */
     align-items: center;      /* по вертикали */
-    height: 100vh;            /* занять всю высоту окна */
+    height: 94vh;            /* занять всю высоту окна */
 }
-
-section {
+.notification{
+    width: 90%;
+    top: 64px !important;
+}
+section.main {
     /* любые стили для section, например: */
     width: 600px;
     height: auto;
     border: 1px solid lightgray;
     border-radius: 16px;
+}
+.section{
+    width: 100%;
+    padding-top: 0px;
+    height: 100%;
+}
+.edit-columns{
+    width: 100%;
+    margin: auto;
+    height: 96%;
 }
 label{
     width: 92%;
@@ -39,8 +52,11 @@ ul.tree {
     list-style-type: none;
     padding-left: 20px;
 }
-ul.tree li.folder > span {
+ul.tree li span{
     cursor: pointer;
+    display: contents;
+}
+ul.tree li.folder > span {
     user-select: none;
 }
 ul.tree li.folder > ul {
@@ -55,4 +71,13 @@ ul.tree li.folder::before {
 }
 ul.tree li:not(.folder)::before {
     content: "📄 ";
+}
+#uploadForm{
+    width: 45%;
+    margin: auto;
+}
+.edit-textarea{
+    width: 100%;
+    height: 100%;
+    max-height: 100% !important;
 }

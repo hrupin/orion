@@ -1,13 +1,23 @@
 package `in`.hrup.orion.presentation.ui.layouts
 
+import `in`.hrup.orion.presentation.ui.components.notificationBlock
+import kotlinx.html.FormEncType
+import kotlinx.html.FormMethod
 import kotlinx.html.HTML
+import kotlinx.html.InputType
 import kotlinx.html.SECTION
 import kotlinx.html.a
 import kotlinx.html.body
+import kotlinx.html.classes
 import kotlinx.html.div
+import kotlinx.html.form
 import kotlinx.html.head
 import kotlinx.html.hr
+import kotlinx.html.i
+import kotlinx.html.id
 import kotlinx.html.img
+import kotlinx.html.input
+import kotlinx.html.label
 import kotlinx.html.span
 import kotlinx.html.link
 import kotlinx.html.main
@@ -17,15 +27,20 @@ import kotlinx.html.script
 import kotlinx.html.section
 import kotlinx.html.title
 
-fun HTML.adminLayout(content: SECTION.() -> Unit) {
+fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String = "", content: SECTION.() -> Unit) {
     head {
         title("Login")
         meta(charset = "UTF-8")
+        link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css")
         link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css")
         link(rel = "stylesheet", href = "/static/css/style.css")
         link(rel = "stylesheet", href = "/static/css/admin.css")
         script {
             src = "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+            attributes["defer"] = ""
+        }
+        script {
+            src = "/static/js/admin.js"
             attributes["defer"] = ""
         }
     }
@@ -34,7 +49,7 @@ fun HTML.adminLayout(content: SECTION.() -> Unit) {
             attributes["aria-label"] = "main navigation"
 
             div("navbar-brand") {
-                a(classes = "navbar-item", href = "https://bulma.io") {
+                a(classes = "navbar-item", href = "/dashboard") {
                     img { src = "/static/img/logo_full.svg" }
                 }
 
@@ -42,7 +57,7 @@ fun HTML.adminLayout(content: SECTION.() -> Unit) {
                     attributes["role"] = "button"
                     attributes["aria-label"] = "menu"
                     attributes["aria-expanded"] = "false"
-                    attributes["data-target"] = "navbarBasicExample"
+                    attributes["data-target"] = "navbarAdmin"
 
                     repeat(4) {
                         span {
@@ -52,13 +67,57 @@ fun HTML.adminLayout(content: SECTION.() -> Unit) {
                 }
             }
 
-            div("navbar-menu") {
+            div(classes = "navbar-menu") {
+                id = "navbarAdmin"
                 div("navbar-start") {
+
                     a(classes = "navbar-item") {
-                        href = "view"
+                        href = "/dashboard"
                         +"Home"
                     }
+
+                    div(classes = "navbar-item has-dropdown is-hoverable") {
+                        a(classes = "navbar-link"){
+                            href = "/posts/index"
+                            +"Новости"
+                        }
+                        div(classes = "navbar-dropdown") {
+                            a(classes = "navbar-item"){
+                                href = "/posts/create"
+                                +" + Добавить"
+                            }
+                            a(classes = "navbar-item js-modal-trigger"){
+                                href = "/posts/lists"
+                                +"Cписок"
+                            }
+                        }
+                    }
+
+                    div(classes = "navbar-item has-dropdown is-hoverable") {
+                        a(classes = "navbar-link"){
+                            +"Сайт"
+                        }
+                        div(classes = "navbar-dropdown") {
+                            a(classes = "navbar-item"){
+                                href = "site/download"
+                                +"Експорт"
+                            }
+                            a(classes = "navbar-item js-modal-trigger"){
+                                attributes["data-target"] = "modalSiteImport"
+                                +"Імпорт"
+                            }
+                            a(classes = "navbar-item"){
+                                href = "site/edit"
+                                +"Редагувати"
+                            }
+                            a(classes = "navbar-item"){
+                                href = "site/build"
+                                +"Скомпілювати"
+                            }
+                        }
+                    }
                 }
+
                 div("navbar-end") {
                     div("navbar-item") {
                         div("buttons") {
@@ -70,11 +129,43 @@ fun HTML.adminLayout(content: SECTION.() -> Unit) {
                 }
             }
         }
+        if(typeNotifications.isNotEmpty()){
+            notificationBlock(type = typeNotifications, message = messageNotification)
+        }
 
         main {
-            section {
+            section(classes = "section") {
                 content()
+                modalLayout(
+                    idModal = "modalSiteImport",
+                    idForm = "uploadForm"
+                ){
+                    form(
+                        action = "/site", // эндпоинт на сервере
+                        encType = FormEncType.multipartFormData,
+                        method = FormMethod.post
+                    ) {
+                        id = "uploadForm"
+                        div(classes = "file has-name is-boxed") {
+                            id = "uploadDump"
+                            label(classes = "file-label") {
+                                input(type = InputType.file, classes = "file-input", name = "DUMP") {}
+                                span(classes = "file-cta") {
+                                    span(classes = "file-icon") {
+                                        i(classes = "fas fa-upload"){}
+                                    }
+                                    span(classes = "file-label") {
+                                        +"Виберіть файл…"
+                                    }
+                                }
+                                span(classes = "file-name") { +"Виберіть файл…" }
+                            }
+                        }
+
+                    }
+                }
             }
         }
+
     }
 }

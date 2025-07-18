@@ -8,7 +8,7 @@ fun HTML.authLayout(content: SECTION.() -> Unit) {
     head {
         title("Login")
         meta(charset = "UTF-8")
-        link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/water.css@2/out/water.css")
+        link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css")
         link(rel = "stylesheet", href = "/static/css/style.css")
         link(rel = "stylesheet", href = "/static/css/admin.css")
         script {
@@ -18,7 +18,7 @@ fun HTML.authLayout(content: SECTION.() -> Unit) {
     }
     body {
         main {
-            section {
+            section(classes = "main") {
                 content()
             }
         }
