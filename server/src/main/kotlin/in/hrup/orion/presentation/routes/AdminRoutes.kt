@@ -17,6 +17,7 @@ import `in`.hrup.orion.domain.usecases.auth.GetUserSessionByUsernameUseCase
 import `in`.hrup.orion.domain.utils.FileUtil
 import `in`.hrup.orion.domain.utils.Tree
 import `in`.hrup.orion.presentation.ui.components.NotificationType
+import `in`.hrup.orion.presentation.ui.components.formCreatePost
 import `in`.hrup.orion.presentation.ui.components.notificationBlock
 import `in`.hrup.orion.presentation.ui.layouts.adminLayout
 import `in`.hrup.orion.presentation.ui.screens.site.editScreen
@@ -236,6 +237,14 @@ fun Application.adminRoutes() {
             call.respondHtml {
                 adminLayout {
                     editScreen()
+                }
+            }
+        }
+
+        get("post/create"){
+            call.respondHtml {
+                adminLayout {
+                    formCreatePost()
                 }
             }
         }

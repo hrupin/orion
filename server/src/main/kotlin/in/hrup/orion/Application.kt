@@ -2,6 +2,7 @@ package `in`.hrup.orion
 
 import `in`.hrup.orion.data.repositories.db.DatabaseFactory
 import `in`.hrup.orion.presentation.routes.adminRoutes
+import `in`.hrup.orion.presentation.routes.apiRoutes
 import `in`.hrup.orion.presentation.routes.configureSessionAuth
 import `in`.hrup.orion.presentation.routes.configureSessionStorage
 import io.ktor.serialization.kotlinx.json.json
@@ -16,6 +17,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
 import java.io.PrintStream
 
 fun main() {
@@ -34,13 +36,14 @@ fun Application.module() {
     configureSessionStorage()
 
     install(ContentNegotiation) {
-        json()
+        json(Json { prettyPrint = true })
     }
 
     install(Authentication) {
         configureSessionAuth()
     }
 
+    apiRoutes()
     adminRoutes()
 
     routing {
