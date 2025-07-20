@@ -20,8 +20,12 @@ import `in`.hrup.orion.presentation.ui.components.NotificationType
 import `in`.hrup.orion.presentation.ui.components.formCreatePost
 import `in`.hrup.orion.presentation.ui.components.notificationBlock
 import `in`.hrup.orion.presentation.ui.layouts.adminLayout
+import `in`.hrup.orion.presentation.ui.screens.site.createPostScreen
+import `in`.hrup.orion.presentation.ui.screens.site.createVideoScreen
 import `in`.hrup.orion.presentation.ui.screens.site.editScreen
+import `in`.hrup.orion.presentation.ui.screens.site.indexPostScreen
 import `in`.hrup.orion.presentation.ui.screens.site.indexScreen
+import `in`.hrup.orion.presentation.ui.screens.site.indexVideoScreen
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -241,10 +245,34 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("post/create"){
+        get("posts/index"){
             call.respondHtml {
                 adminLayout {
-                    formCreatePost()
+                    indexPostScreen()
+                }
+            }
+        }
+
+        get("posts/create"){
+            call.respondHtml {
+                adminLayout {
+                    createPostScreen()
+                }
+            }
+        }
+
+        get("videos/index"){
+            call.respondHtml {
+                adminLayout {
+                    indexVideoScreen()
+                }
+            }
+        }
+
+        get("videos/create"){
+            call.respondHtml {
+                adminLayout {
+                    createVideoScreen()
                 }
             }
         }

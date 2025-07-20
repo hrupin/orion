@@ -79,15 +79,32 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                     div(classes = "navbar-item has-dropdown is-hoverable") {
                         a(classes = "navbar-link"){
                             href = "/posts/index"
-                            +"Новости"
+                            +"Новини"
                         }
                         div(classes = "navbar-dropdown") {
                             a(classes = "navbar-item"){
                                 href = "/posts/create"
-                                +" + Добавить"
+                                +" + Додати"
                             }
                             a(classes = "navbar-item js-modal-trigger"){
-                                href = "/posts/lists"
+                                href = "/posts/index"
+                                +"Cписок"
+                            }
+                        }
+                    }
+
+                    div(classes = "navbar-item has-dropdown is-hoverable") {
+                        a(classes = "navbar-link"){
+                            href = "/posts/index"
+                            +"Відео"
+                        }
+                        div(classes = "navbar-dropdown") {
+                            a(classes = "navbar-item"){
+                                href = "/posts/create"
+                                +" + Додати"
+                            }
+                            a(classes = "navbar-item js-modal-trigger"){
+                                href = "/posts/index"
                                 +"Cписок"
                             }
                         }
