@@ -283,7 +283,7 @@ fun Application.adminRoutes() {
                         file.outputStream().use { output ->
                             runBlocking {
                                 channel.copyTo(output)
-                                channel.cancel() // ✅ закрываем канал вручную
+                                channel.cancel()
                             }
                         }
 
@@ -332,7 +332,7 @@ fun Application.adminRoutes() {
                         file.outputStream().use { output ->
                             runBlocking {
                                 channel.copyTo(output)
-                                channel.cancel() // ✅ закрываем канал вручную
+                                channel.cancel()
                             }
                         }
 
