@@ -95,16 +95,16 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
 
                     div(classes = "navbar-item has-dropdown is-hoverable") {
                         a(classes = "navbar-link"){
-                            href = "/posts/index"
+                            href = "/video/index"
                             +"Відео"
                         }
                         div(classes = "navbar-dropdown") {
                             a(classes = "navbar-item"){
-                                href = "/posts/create"
+                                href = "/video/create"
                                 +" + Додати"
                             }
                             a(classes = "navbar-item js-modal-trigger"){
-                                href = "/posts/index"
+                                href = "/video/index"
                                 +"Cписок"
                             }
                         }
@@ -158,7 +158,7 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                     idForm = "uploadForm"
                 ){
                     form(
-                        action = "/site", // эндпоинт на сервере
+                        action = "/site",
                         encType = FormEncType.multipartFormData,
                         method = FormMethod.post
                     ) {

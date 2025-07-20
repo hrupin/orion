@@ -90,3 +90,6 @@ input.input{
 .mar0{
     margin: 0 !important;
 }
+.file-name{
+    max-width: 400px !important;
+}

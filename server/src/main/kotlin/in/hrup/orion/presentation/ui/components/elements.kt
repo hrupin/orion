@@ -4,9 +4,11 @@ import kotlinx.html.FlowContent
 import kotlinx.html.InputType
 import kotlinx.html.classes
 import kotlinx.html.div
+import kotlinx.html.i
 import kotlinx.html.input
 import kotlinx.html.label
 import kotlinx.html.p
+import kotlinx.html.span
 import kotlinx.html.textArea
 
 fun FlowContent.field(labelText: String, name: String, value: String? = null) {
@@ -44,4 +46,39 @@ fun FlowContent.staticField(labelText: String, value: String) {
             }
         }
     }
+}
+
+fun FlowContent.fileField(labelText: String, name: String) {
+
+
+    div("field is-horizontal") {
+        div(classes = "field-label is-normal"){
+            label("label mar0") { +labelText }
+        }
+        div(classes = "field-body") {
+            div(classes = "field") {
+                div("file has-name") {
+                    div("file-label") {
+                        input(type = InputType.file, name = "resume") {
+                            classes = setOf("file-input")
+                        }
+                        span("file-cta") {
+                            span("file-icon") {
+                                i("fas fa-upload") {}
+                            }
+                            span("file-label") {
+                                +"Choose a file…"
+                            }
+                        }
+                        span("file-name") {
+                            +"Screen Shot 2017-07-29 at 15.54.25.png"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
 }

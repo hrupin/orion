@@ -8,24 +8,23 @@ import kotlinx.html.InputType
 import kotlinx.html.ButtonType
 import kotlinx.html.FormMethod
 import kotlinx.html.FlowContent
-import `in`.hrup.orion.data.modelsImpl.PostImpl
+import `in`.hrup.orion.data.modelsImpl.VideoImpl
 
-fun FlowContent.formCreatePost(post: PostImpl? = null) {
+fun FlowContent.formCreateVideo(video: VideoImpl? = null) {
 
     form(classes = "box", action = "/posts/save", method = FormMethod.post) {
 
         input(type = InputType.hidden, name = "id") {
-            value = post?.id?.toString() ?: "0"
+            value = video?.id?.toString() ?: "0"
         }
 
-        field("Title", "title", post?.title)
-        field("Tags", "tags", post?.tags)
-        field("SEO Title", "seoTitle", post?.seoTitle)
-        field("SEO Description", "seoDescription", post?.seoDescription)
-        field("SEO Keywords", "seoKeywords", post?.seoKeywords)
+        field("Title", "title", video?.title)
+        field("Tags", "tags", video?.tags)
+        field("SEO Title", "seoTitle", video?.seoTitle)
+        field("SEO Description", "seoDescription", video?.seoDescription)
+        field("SEO Keywords", "seoKeywords", video?.seoKeywords)
 
-
-        fileField("Image", "description")
+        fileField("Video", "description")
 
 //        field("Slug", "slug", post?.slug)
 //        field("SEO Canonical URL", "seoCanonicalUrl", post?.seoCanonicalUrl)
@@ -38,8 +37,7 @@ fun FlowContent.formCreatePost(post: PostImpl? = null) {
 //            }
 //        }
 
-        textareaField("Description", "description", post?.description, rows = 7)
-        textareaField("Content", "content", post?.content, rows = 15)
+        textareaField("Description", "description", video?.description, rows = 7)
 
         div("field") {
             div("control") {

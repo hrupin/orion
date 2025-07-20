@@ -33,9 +33,11 @@ import io.ktor.http.content.streamProvider
 import io.ktor.server.http.content.file
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.cancel
 import io.ktor.utils.io.copyTo
 import java.io.File
 import java.io.FileOutputStream
@@ -43,6 +45,7 @@ import io.ktor.utils.io.copyTo
 import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.lang.Exception
 
 fun Application.adminRoutes() {
@@ -261,7 +264,39 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("videos/index"){
+        post("posts/create") {
+            val multipart = call.receiveMultipart()
+
+            multipart.forEachPart { part ->
+                if (part is PartData.FileItem) {
+                    val fileName = part.originalFileName ?: "unnamed"
+                    val ext = File(fileName).extension.lowercase()
+                    val allowed = listOf("jpg", "jpeg", "png", "mp4", "webm")
+
+                    if (ext in allowed) {
+                        val uploadDir = File("uploads")
+                        if (!uploadDir.exists()) uploadDir.mkdirs()
+
+                        val file = File(uploadDir, fileName)
+
+                        val channel = part.provider()
+                        file.outputStream().use { output ->
+                            runBlocking {
+                                channel.copyTo(output)
+                                channel.cancel() // ✅ закрываем канал вручную
+                            }
+                        }
+
+                        call.respondText("Файл $fileName загружен успешно.")
+                    } else {
+                        call.respond(HttpStatusCode.UnsupportedMediaType, "Формат .$ext не поддерживается.")
+                    }
+                }
+                part.dispose()
+            }
+        }
+
+        get("video/index"){
             call.respondHtml {
                 adminLayout {
                     indexVideoScreen()
@@ -269,13 +304,47 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("videos/create"){
+        get("video/create"){
             call.respondHtml {
                 adminLayout {
                     createVideoScreen()
                 }
             }
         }
+
+
+        post("video/create") {
+            val multipart = call.receiveMultipart()
+
+            multipart.forEachPart { part ->
+                if (part is PartData.FileItem) {
+                    val fileName = part.originalFileName ?: "unnamed"
+                    val ext = File(fileName).extension.lowercase()
+                    val allowed = listOf("jpg", "jpeg", "png", "mp4", "webm")
+
+                    if (ext in allowed) {
+                        val uploadDir = File("uploads")
+                        if (!uploadDir.exists()) uploadDir.mkdirs()
+
+                        val file = File(uploadDir, fileName)
+
+                        val channel = part.provider()
+                        file.outputStream().use { output ->
+                            runBlocking {
+                                channel.copyTo(output)
+                                channel.cancel() // ✅ закрываем канал вручную
+                            }
+                        }
+
+                        call.respondText("Файл $fileName загружен успешно.")
+                    } else {
+                        call.respond(HttpStatusCode.UnsupportedMediaType, "Формат .$ext не поддерживается.")
+                    }
+                }
+                part.dispose()
+            }
+        }
+
 
     }
 
