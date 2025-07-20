@@ -4,24 +4,12 @@ import `in`.hrup.orion.domain.dto.PostsDTO
 import `in`.hrup.orion.domain.dto.VideosDTO
 import `in`.hrup.orion.domain.usecases.posts.FetchPagedPostsUseCase
 import `in`.hrup.orion.domain.usecases.videos.FetchPagedVideosUseCase
+import `in`.hrup.orion.presentation.queries.PostsQueryParams
+import `in`.hrup.orion.presentation.queries.VideosQueryParams
 import io.ktor.server.application.Application
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-
-data class PostsQueryParams(
-    val page: Int = 1,
-    val month: Int?,
-    val year: Int?,
-    val tag: String?
-)
-
-data class VideosQueryParams(
-    val page: Int = 1,
-    val month: Int?,
-    val year: Int?,
-    val tag: String?
-)
 
 fun Application.apiRoutes() {
 
