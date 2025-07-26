@@ -31,6 +31,7 @@ fun FlowContent.field(labelText: String, name: String, value: String? = null) {
 fun FlowContent.textareaField(labelText: String, name: String, value: String? = null, rows: Int? = 3) {
     div("field") {
         textArea(classes = "textarea"){
+            attributes["name"] = name
             attributes["placeholder"] = labelText
             attributes["rows"] = rows.toString()
         }
@@ -49,8 +50,6 @@ fun FlowContent.staticField(labelText: String, value: String) {
 }
 
 fun FlowContent.fileField(labelText: String, name: String) {
-
-
     div("field is-horizontal") {
         div(classes = "field-label is-normal"){
             label("label mar0") { +labelText }
@@ -58,8 +57,8 @@ fun FlowContent.fileField(labelText: String, name: String) {
         div(classes = "field-body") {
             div(classes = "field") {
                 div("file has-name") {
-                    div("file-label") {
-                        input(type = InputType.file, name = "resume") {
+                    label("file-label") {
+                        input(type = InputType.file, name = name) {
                             classes = setOf("file-input")
                         }
                         span("file-cta") {
@@ -78,7 +77,4 @@ fun FlowContent.fileField(labelText: String, name: String) {
             }
         }
     }
-
-
-
 }

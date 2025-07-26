@@ -9,10 +9,11 @@ import kotlinx.html.ButtonType
 import kotlinx.html.FormMethod
 import kotlinx.html.FlowContent
 import `in`.hrup.orion.data.modelsImpl.PostImpl
+import kotlinx.html.FormEncType
 
 fun FlowContent.formCreatePost(post: PostImpl? = null) {
 
-    form(classes = "box", action = "/posts/save", method = FormMethod.post) {
+    form(classes = "box", action = "/posts/create", method = FormMethod.post, encType = FormEncType.multipartFormData) {
 
         input(type = InputType.hidden, name = "id") {
             value = post?.id?.toString() ?: "0"

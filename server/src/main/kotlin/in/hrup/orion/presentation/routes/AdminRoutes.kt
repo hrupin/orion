@@ -14,8 +14,10 @@ import `in`.hrup.orion.domain.usecases.auth.LoginUseCase
 import `in`.hrup.orion.presentation.ui.layouts.authLayout
 import `in`.hrup.orion.presentation.ui.screens.authScreen
 import `in`.hrup.orion.domain.usecases.auth.GetUserSessionByUsernameUseCase
+import `in`.hrup.orion.domain.usecases.posts.CreatePostUseCase
 import `in`.hrup.orion.domain.utils.FileUtil
 import `in`.hrup.orion.domain.utils.Tree
+import `in`.hrup.orion.presentation.controllers.PostsController
 import `in`.hrup.orion.presentation.ui.components.NotificationType
 import `in`.hrup.orion.presentation.ui.components.formCreatePost
 import `in`.hrup.orion.presentation.ui.components.notificationBlock
@@ -265,34 +267,14 @@ fun Application.adminRoutes() {
         }
 
         post("posts/create") {
-            val multipart = call.receiveMultipart()
-
-            multipart.forEachPart { part ->
-                if (part is PartData.FileItem) {
-                    val fileName = part.originalFileName ?: "unnamed"
-                    val ext = File(fileName).extension.lowercase()
-                    val allowed = listOf("jpg", "jpeg", "png", "mp4", "webm")
-
-                    if (ext in allowed) {
-                        val uploadDir = File("uploads")
-                        if (!uploadDir.exists()) uploadDir.mkdirs()
-
-                        val file = File(uploadDir, fileName)
-
-                        val channel = part.provider()
-                        file.outputStream().use { output ->
-                            runBlocking {
-                                channel.copyTo(output)
-                                channel.cancel()
-                            }
-                        }
-
-                        call.respondText("Файл $fileName загружен успешно.")
-                    } else {
-                        call.respond(HttpStatusCode.UnsupportedMediaType, "Формат .$ext не поддерживается.")
-                    }
+            val controller = PostsController()
+            val post = controller.create(call = call)
+            println("POST -> $post")
+            CreatePostUseCase.execute(post = post)
+            call.respondHtml {
+                adminLayout {
+                    createPostScreen(post = post)
                 }
-                part.dispose()
             }
         }
 

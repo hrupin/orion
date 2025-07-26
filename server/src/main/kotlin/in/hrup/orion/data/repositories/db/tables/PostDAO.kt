@@ -36,7 +36,7 @@ object PostDAO: LongIdTable("posts") {
         return transaction {
             try{
                 insert {
-                    modelToRow(it = it, model = model)
+                    modelToRow(it = it, model = model, isCreating = true)
                 }[PostDAO.id].value
             }
             catch (e: Exception){
@@ -140,7 +140,7 @@ object PostDAO: LongIdTable("posts") {
         }
     }
 
-    private fun modelToRow(it: UpdateBuilder<Any>, model: PostImpl){
+    private fun modelToRow(it: UpdateBuilder<Any>, model: PostImpl, isCreating: Boolean = false){
         it[title] = model.title
         it[slug] = model.slug
         it[content] = model.content
@@ -151,9 +151,14 @@ object PostDAO: LongIdTable("posts") {
         it[seoKeywords] = model.seoKeywords
         it[seoCanonicalUrl] = model.seoCanonicalUrl
         it[published] = model.published
-        it[publishedAt] = model.publishedAt
-        it[createdAt] = model.createdAt
-        it[updatedAt] = model.updatedAt
+        val timestamp = System.currentTimeMillis()
+        if(model.publishedAt < 1000 && model.published){
+            it[publishedAt] = model.publishedAt
+        }
+        if(isCreating){
+            it[createdAt] = timestamp
+        }
+        it[updatedAt] = timestamp
     }
 
     private fun rowToModel(row: ResultRow): PostImpl {

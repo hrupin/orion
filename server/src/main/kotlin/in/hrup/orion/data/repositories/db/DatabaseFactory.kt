@@ -3,6 +3,7 @@ package `in`.hrup.orion.data.repositories.db
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import `in`.hrup.orion.data.modelsImpl.UserImpl
+import `in`.hrup.orion.data.repositories.db.tables.PostDAO
 import `in`.hrup.orion.data.repositories.db.tables.UserDAO
 import `in`.hrup.orion.domain.utils.FileUtil
 import org.jetbrains.exposed.sql.Database
@@ -36,6 +37,7 @@ object DatabaseFactory {
                     )
                 }
             }
+            SchemaUtils.create(PostDAO)
         }
     }
 

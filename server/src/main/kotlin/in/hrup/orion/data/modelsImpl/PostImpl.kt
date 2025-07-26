@@ -14,7 +14,7 @@ data class PostImpl(
     override val seoKeywords: String,
     override val seoCanonicalUrl: String,
     override val published: Boolean,
-    override val publishedAt: Long,
-    override val updatedAt: Long,
-    override val createdAt: Long
+    override val publishedAt: Long = 0,
+    override val updatedAt: Long = 0,
+    override val createdAt: Long = 0
 ): Post
