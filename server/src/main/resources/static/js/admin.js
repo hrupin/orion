@@ -100,30 +100,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(err => alert(err));
         });
     });
-    document.getElementById('saveFileButton').addEventListener('click', () => {
-        const path = document.getElementById('filePath').value;
-        const content = document.getElementById('fileContentArea').value;
+    // document.getElementById('saveFileButton').addEventListener('click', () => {
+    //     const path = document.getElementById('filePath').value;
+    //     const content = document.getElementById('fileContentArea').value;
+    //
+    //     if (!path) {
+    //         alert("Файл не выбран");
+    //         return;
+    //     }
+    //
+    //     fetch('/site/save', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({
+    //             path: path,
+    //             content: content
+    //         })
+    //     })
+    //         .then(response => {
+    //             if (!response.ok) throw new Error("Ошибка при сохранении файла");
+    //             return response.text();
+    //         })
+    //         .then(msg => alert(msg))
+    //         .catch(err => alert("Ошибка: " + err.message));
+    // });
 
-        if (!path) {
-            alert("Файл не выбран");
-            return;
-        }
-
-        fetch('/site/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                path: path,
-                content: content
-            })
-        })
-            .then(response => {
-                if (!response.ok) throw new Error("Ошибка при сохранении файла");
-                return response.text();
-            })
-            .then(msg => alert(msg))
-            .catch(err => alert("Ошибка: " + err.message));
-    });
 });

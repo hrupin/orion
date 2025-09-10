@@ -25,15 +25,12 @@ fun Application.apiRoutes() {
             )
             val limit = 20
             val offset = 0
-            val result = PostsDTO(
-                posts = FetchPagedPostsUseCase.execute(
-                    limit = limit,
-                    offset = offset,
-                    month = params.month,
-                    year = params.year,
-                    tag = params.tag
-                ),
-                count = 122
+            val result = FetchPagedPostsUseCase.execute(
+                limit = limit,
+                offset = offset,
+                month = params.month,
+                year = params.year,
+                tag = params.tag
             )
             call.respond(result)
         }
@@ -48,15 +45,12 @@ fun Application.apiRoutes() {
             )
             val limit = 20
             val offset = 0
-            val result = VideosDTO(
-                videos = FetchPagedVideosUseCase.execute(
-                    limit = limit,
-                    offset = offset,
-                    month = params.month,
-                    year = params.year,
-                    tag = params.tag
-                ),
-                count = 122
+            val result = FetchPagedVideosUseCase.execute(
+                limit = limit,
+                offset = offset,
+                month = params.month,
+                year = params.year,
+                tag = params.tag
             )
             call.respond(result)
         }

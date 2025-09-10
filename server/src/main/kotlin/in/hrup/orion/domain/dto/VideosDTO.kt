@@ -6,5 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class VideosDTO(
     val videos: List<Video>,
-    val count: Long
+    val count: Long,
+    val currentPage: Int,
+    val totalPages: Int
 )

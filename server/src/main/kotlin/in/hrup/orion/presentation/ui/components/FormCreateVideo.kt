@@ -9,10 +9,13 @@ import kotlinx.html.ButtonType
 import kotlinx.html.FormMethod
 import kotlinx.html.FlowContent
 import `in`.hrup.orion.data.modelsImpl.VideoImpl
+import kotlinx.html.FormEncType
+import kotlinx.html.script
+import kotlinx.html.unsafe
 
 fun FlowContent.formCreateVideo(video: VideoImpl? = null) {
 
-    form(classes = "box", action = "/posts/save", method = FormMethod.post) {
+    form(classes = "box", action = "/video/create", method = FormMethod.post, encType = FormEncType.multipartFormData) {
 
         input(type = InputType.hidden, name = "id") {
             value = video?.id?.toString() ?: "0"
@@ -37,13 +40,29 @@ fun FlowContent.formCreateVideo(video: VideoImpl? = null) {
 //            }
 //        }
 
-        textareaField("Description", "description", video?.description, rows = 7)
+        textareaField("Description", "", "description", video?.description, rows = 7)
 
         div("field") {
             div("control") {
                 button(classes = "button is-primary", type = ButtonType.submit) {
                     +"Save"
                 }
+            }
+        }
+
+
+        script {
+            unsafe {
+                +"""document.addEventListener('DOMContentLoaded', () => {
+                        const imageInput = document.querySelector("#file input[type=file]");
+                        imageInput.onchange = () => {
+                            if (imageInput.files.length > 0) {
+                                const fileName = document.querySelector("#file .file-name");
+                                fileName.textContent = imageInput.files[0].name;
+                            }
+                        };
+                    });
+                """
             }
         }
 

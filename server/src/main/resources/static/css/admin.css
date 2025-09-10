@@ -93,3 +93,24 @@ input.input{
 .file-name{
     max-width: 400px !important;
 }
+#textarea_content{
+    visibility: hidden;
+    display: none;
+}
+#editor{
+    height: 70vH;
+}
+table#posts{
+    width: 100%;
+}
+.posts_header{
+    font-size: 2em;
+}
+.postActions{
+    margin: 5px;
+}
+.img_preview{
+    width: auto;
+    height: 150px;
+    margin-left: 19%;
+}

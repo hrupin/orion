@@ -1,5 +1,9 @@
 package `in`.hrup.orion.presentation.routes
 
+import `in`.hrup.orion.Config
+import `in`.hrup.orion.data.modelsImpl.CategoryImpl
+import `in`.hrup.orion.data.modelsImpl.PostImpl
+import `in`.hrup.orion.data.modelsImpl.VideoImpl
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
@@ -15,13 +19,22 @@ import `in`.hrup.orion.presentation.ui.layouts.authLayout
 import `in`.hrup.orion.presentation.ui.screens.authScreen
 import `in`.hrup.orion.domain.usecases.auth.GetUserSessionByUsernameUseCase
 import `in`.hrup.orion.domain.usecases.posts.CreatePostUseCase
+import `in`.hrup.orion.domain.usecases.posts.FetchPagedPostsUseCase
+import `in`.hrup.orion.domain.usecases.posts.GetPostByIdUseCase
+import `in`.hrup.orion.domain.usecases.posts.PublishUnpublishPostUseCase
+import `in`.hrup.orion.domain.usecases.posts.RemovePostByIdUseCase
+import `in`.hrup.orion.domain.usecases.videos.CreateVideoUseCase
+import `in`.hrup.orion.domain.usecases.videos.FetchPagedVideosUseCase
+import `in`.hrup.orion.domain.usecases.videos.GetVideoByIdUseCase
+import `in`.hrup.orion.domain.usecases.videos.PublishUnpublishVideoUseCase
+import `in`.hrup.orion.domain.usecases.videos.RemoveVideoByIdUseCase
 import `in`.hrup.orion.domain.utils.FileUtil
 import `in`.hrup.orion.domain.utils.Tree
 import `in`.hrup.orion.presentation.controllers.PostsController
+import `in`.hrup.orion.presentation.controllers.VideosController
 import `in`.hrup.orion.presentation.ui.components.NotificationType
-import `in`.hrup.orion.presentation.ui.components.formCreatePost
-import `in`.hrup.orion.presentation.ui.components.notificationBlock
 import `in`.hrup.orion.presentation.ui.layouts.adminLayout
+import `in`.hrup.orion.presentation.ui.screens.site.createCategoryScreen
 import `in`.hrup.orion.presentation.ui.screens.site.createPostScreen
 import `in`.hrup.orion.presentation.ui.screens.site.createVideoScreen
 import `in`.hrup.orion.presentation.ui.screens.site.editScreen
@@ -31,30 +44,22 @@ import `in`.hrup.orion.presentation.ui.screens.site.indexVideoScreen
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
-import io.ktor.http.content.streamProvider
-import io.ktor.server.http.content.file
+import io.ktor.server.request.path
+//import io.ktor.server.request.path
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
-import io.ktor.server.response.respond
+import io.ktor.server.request.uri
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.cancel
-import io.ktor.utils.io.copyTo
 import java.io.File
-import java.io.FileOutputStream
-import io.ktor.utils.io.copyTo
 import io.ktor.utils.io.jvm.javaio.copyTo
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.lang.Exception
 
 fun Application.adminRoutes() {
 
     routing {
 
-        get("auth/login"){
+        get("/admin/auth/login"){
             println("SESSION => ${call.sessions.get<UserSession>()}")
             call.respondHtml {
                 authLayout {
@@ -63,7 +68,7 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("auth"){
+        get("/admin"){
             call.respondHtml {
                 authLayout {
                     authScreen()
@@ -71,7 +76,7 @@ fun Application.adminRoutes() {
             }
         }
 
-        post("/auth") {
+        post("/admin/auth") {
             var isSuccess = false
             val params = call.receiveParameters()
             val login = params["email"] ?: ""
@@ -82,7 +87,7 @@ fun Application.adminRoutes() {
                 if(user != null) {
                     call.sessions.set(user)
                 }
-                call.respondRedirect("/dashboard")
+                call.respondRedirect("/admin/dashboard")
             } else {
                 call.respondHtml {
                     authLayout {
@@ -92,7 +97,7 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("dashboard"){
+        get("/admin/dashboard"){
             println("SESSION => ${call.sessions.get<UserSession>()}")
             call.respondHtml {
                 adminLayout {
@@ -101,15 +106,7 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("site"){
-            call.respondHtml {
-                adminLayout {
-                    indexScreen()
-                }
-            }
-        }
-
-        post("site"){
+        post("/admin/site"){
             val uploadTempZipPath = File.createTempFile("vue-import-", ".zip")
             val vueExtractDir = File("${FileUtil.getDirMain()}/site")
             val multipart = call.receiveMultipart()
@@ -161,7 +158,7 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("/site/download") {
+        get("/admin/site/download") {
             val vueDir = File("${FileUtil.getDirMain()}/site")
             if (!vueDir.exists()) {
                 call.respondHtml {
@@ -178,7 +175,7 @@ fun Application.adminRoutes() {
             call.respondFile(zipFile)
         }
 
-        get("site/tree"){
+        get("/admin/site/tree"){
             val rootDir = File("/путь/к/директории")
             val tree = Tree.build(file = rootDir)
             call.respondHtml {
@@ -188,7 +185,7 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("site/edit"){
+        get("/admin/site/edit"){
             val rootDir = File("/путь/к/директории")
             val tree = Tree.build(file = rootDir)
             call.respondHtml {
@@ -198,7 +195,7 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("/site/file") {
+        get("/admin/site/file") {
             val path = call.request.queryParameters["path"]
             if (path == null) {
                 call.respondText("Missing path parameter", status = HttpStatusCode.BadRequest)
@@ -217,7 +214,7 @@ fun Application.adminRoutes() {
             call.respondFile(requestedFile)
         }
 
-        post("/site/save") {
+        post("/admin/site/save") {
             val data = call.receive<Map<String, String>>()
             val path = data["path"]
             val content = data["content"]
@@ -239,9 +236,12 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("site/build"){
-            FileUtil.runShell(listOf("C:\\Program Files\\nodejs\\npm.cmd", "install"), File("${FileUtil.getDirMain()}/site"))
-            FileUtil.runShell(listOf("C:\\Program Files\\nodejs\\npm.cmd", "run", "build"), File("${FileUtil.getDirMain()}/site"))
+        get("/admin/site/build"){
+            //FileUtil.runShell(listOf("C:\\Program Files\\nodejs\\npm.cmd", "install"), File("${FileUtil.getDirMain()}/site"))
+            //FileUtil.runShell(listOf("C:\\Program Files\\nodejs\\npm.cmd", "run", "build"), File("${FileUtil.getDirMain()}/site"))
+
+            FileUtil.runShell(listOf("npm", "install"), File("${FileUtil.getDirMain()}/site"))
+            FileUtil.runShell(listOf("npm", "run", "build"), File("${FileUtil.getDirMain()}/site"))
 
             call.respondHtml {
                 adminLayout {
@@ -250,27 +250,64 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("posts/index"){
+        get("/admin/posts/index"){
+            var pathOnly = call.request.path()
+            val currentUrl = call.request.uri
+            val action = call.request.queryParameters["action"].toString()
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            if(page != null){
+                pathOnly = "${pathOnly}?page=${page}"
+            }
+            println("URL -> ${currentUrl} = ${action}")
+            if(action != null){
+                val id = call.request.queryParameters["id"]?.toLongOrNull()
+                if (id != null) {
+                    when (action) {
+                        "remove" -> {
+                            RemovePostByIdUseCase.execute(id = id)
+                            call.respondRedirect(pathOnly)
+                        }
+                        "unpublish" -> {
+                            PublishUnpublishPostUseCase.execute(id = id, published = false)
+                            call.respondRedirect(pathOnly)
+                        }
+                        "publish" -> {
+                            PublishUnpublishPostUseCase.execute(id = id, published = true)
+                            call.respondRedirect(pathOnly)
+                        }
+                        "edit" -> {
+                            call.respondRedirect("/admin/posts/create?id=${id}")
+                        }
+                        else -> {
+
+                        }
+                    }
+
+                }
+            }
+
+            val offset = (page - 1) * Config.LIMIT
+
+            val posts = FetchPagedPostsUseCase.execute(
+                limit = Config.LIMIT,
+                offset = offset,
+                month = null,
+                year = null,
+                tag = null
+            )
             call.respondHtml {
                 adminLayout {
-                    indexPostScreen()
+                    indexPostScreen(posts = posts, url = currentUrl)
                 }
             }
         }
 
-        get("posts/create"){
-            call.respondHtml {
-                adminLayout {
-                    createPostScreen()
-                }
+        get("/admin/posts/create"){
+            val id = call.request.queryParameters["id"]?.toLongOrNull()
+            var post: PostImpl? = null
+            if (id != null) {
+                post = GetPostByIdUseCase.execute(id = id)
             }
-        }
-
-        post("posts/create") {
-            val controller = PostsController()
-            val post = controller.create(call = call)
-            println("POST -> $post")
-            CreatePostUseCase.execute(post = post)
             call.respondHtml {
                 adminLayout {
                     createPostScreen(post = post)
@@ -278,53 +315,179 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("video/index"){
-            call.respondHtml {
-                adminLayout {
-                    indexVideoScreen()
-                }
+        post("/admin/posts/create") {
+            val controller = PostsController()
+            val post = controller.create(call = call)
+
+            if(CreatePostUseCase.execute(post = post)){
+                call.respondRedirect("/admin/posts/index")
             }
-        }
-
-        get("video/create"){
-            call.respondHtml {
-                adminLayout {
-                    createVideoScreen()
-                }
-            }
-        }
-
-
-        post("video/create") {
-            val multipart = call.receiveMultipart()
-
-            multipart.forEachPart { part ->
-                if (part is PartData.FileItem) {
-                    val fileName = part.originalFileName ?: "unnamed"
-                    val ext = File(fileName).extension.lowercase()
-                    val allowed = listOf("jpg", "jpeg", "png", "mp4", "webm")
-
-                    if (ext in allowed) {
-                        val uploadDir = File("uploads")
-                        if (!uploadDir.exists()) uploadDir.mkdirs()
-
-                        val file = File(uploadDir, fileName)
-
-                        val channel = part.provider()
-                        file.outputStream().use { output ->
-                            runBlocking {
-                                channel.copyTo(output)
-                                channel.cancel()
-                            }
-                        }
-
-                        call.respondText("Файл $fileName загружен успешно.")
-                    } else {
-                        call.respond(HttpStatusCode.UnsupportedMediaType, "Формат .$ext не поддерживается.")
+            else{
+                call.respondHtml {
+                    adminLayout {
+                        createPostScreen(post = post)
                     }
                 }
-                part.dispose()
             }
+
+        }
+
+
+
+
+        get("/admin/category/create"){
+            val id = call.request.queryParameters["id"]?.toLongOrNull()
+            var category: CategoryImpl? = null
+//            if (id != null) {
+                //post = GetPostByIdUseCase.execute(id = id)
+//            }
+            call.respondHtml {
+                adminLayout {
+                    createCategoryScreen(category = null)
+                }
+            }
+        }
+
+        post("/admin/category/action") {
+            val controller = PostsController()
+            val post = controller.create(call = call)
+
+            if(CreatePostUseCase.execute(post = post)){
+                call.respondRedirect("/admin/category/index")
+            }
+            else{
+                call.respondHtml {
+                    adminLayout {
+                        createPostScreen(post = post)
+                    }
+                }
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        get("/admin/video/index"){
+            var pathOnly = call.request.path()
+            val currentUrl = call.request.uri
+            val action = call.request.queryParameters["action"].toString()
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+
+            if(page != null){
+                pathOnly = "${pathOnly}?page=${page}"
+            }
+
+            println("URL -> ${currentUrl} = ${action}")
+
+            if(action != null){
+                val id = call.request.queryParameters["id"]?.toLongOrNull()
+                if (id != null) {
+
+                    when (action) {
+                        "remove" -> {
+                            RemoveVideoByIdUseCase.execute(id = id)
+                            call.respondRedirect(pathOnly)
+                        }
+                        "unpublish" -> {
+                            PublishUnpublishVideoUseCase.execute(id = id, published = false)
+                            call.respondRedirect(pathOnly)
+                        }
+                        "publish" -> {
+                            PublishUnpublishVideoUseCase.execute(id = id, published = true)
+                            call.respondRedirect(pathOnly)
+                        }
+                        "edit" -> {
+
+                        }
+                        else -> {
+
+                        }
+                    }
+
+                }
+            }
+
+            val offset = (page - 1) * Config.LIMIT
+
+            val videos = FetchPagedVideosUseCase.execute(
+                limit = Config.LIMIT,
+                offset = offset,
+                month = null,
+                year = null,
+                tag = null
+            )
+            call.respondHtml {
+                adminLayout {
+                    indexVideoScreen(
+                        videos = videos,
+                        url = currentUrl
+                    )
+                }
+            }
+        }
+
+        get("/admin/video/create"){
+            val id = call.request.queryParameters["id"]?.toLongOrNull()
+            var video: VideoImpl? = null
+            if (id != null) {
+                video = GetVideoByIdUseCase.execute(id = id)
+            }
+            call.respondHtml {
+                adminLayout {
+                    createVideoScreen(video = video)
+                }
+            }
+        }
+
+
+        post("/admin/video/create") {
+            val controller = VideosController()
+            val video = controller.create(call = call)
+            if(CreateVideoUseCase.execute(video = video)){
+                call.respondRedirect("/admin/posts/index")
+            }
+            else{
+                call.respondHtml {
+                    adminLayout {
+                        //createPostScreen(post = post)
+                    }
+                }
+            }
+
+//
+//            val multipart = call.receiveMultipart()
+//
+//            multipart.forEachPart { part ->
+//                Uploader.file(
+//                    part = part,
+//                    dir = "videos",
+//                    allowedExt = listOf("mp4", "webm")
+//                )
+//            }
         }
 
 

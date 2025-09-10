@@ -24,6 +24,7 @@ object VideoDAO: LongIdTable("videos") {
     val tags = this.varchar("tags", 512)
     val seoTitle = this.varchar("seoTitle", 512)
     val seoDescription = this.varchar("seoDescription", 512)
+    val video = this.varchar("video", 512)
     val seoKeywords = this.varchar("seoKeywords", 512)
     val seoCanonicalUrl = this.varchar("seoCanonicalUrl", 512)
     val published = this.bool("published")
@@ -36,7 +37,7 @@ object VideoDAO: LongIdTable("videos") {
         return transaction {
             try{
                 insert {
-                    modelToRow(it = it, model = model)
+                    modelToRow(it = it, model = model, isCreating = true)
                 }[VideoDAO.id].value
             }
             catch (e: Exception){
@@ -70,7 +71,38 @@ object VideoDAO: LongIdTable("videos") {
                 false
             }
         }
+    }
 
+    fun publish(id: Long): Boolean{
+        return transaction {
+            try{
+                update({ VideoDAO.id.eq(id) }){
+                    it[published] = true
+                    val timestamp = System.currentTimeMillis()
+                    it[publishedAt] = timestamp
+                } > 0
+            }
+            catch (e: Exception){
+                println("ERROR in VideoDAO.publish: ${e.message}")
+                false
+            }
+        }
+    }
+
+    fun unpublish(id: Long): Boolean{
+        return transaction {
+            try{
+                update({ VideoDAO.id.eq(id) }){
+                    it[published] = false
+                    val timestamp = System.currentTimeMillis()
+                    it[publishedAt] = timestamp
+                } > 0
+            }
+            catch (e: Exception){
+                println("ERROR in VideoDAO.unpublish: ${e.message}")
+                false
+            }
+        }
     }
 
     fun fetchAll(): List<VideoImpl>{
@@ -140,19 +172,28 @@ object VideoDAO: LongIdTable("videos") {
         }
     }
 
-    private fun modelToRow(it: UpdateBuilder<Any>, model: VideoImpl){
+    private fun modelToRow(it: UpdateBuilder<Any>, model: VideoImpl, isCreating: Boolean = false){
         it[title] = model.title
         it[slug] = model.slug
         it[description] = model.description
+        it[video] = model.video
         it[tags] = model.tags
         it[seoTitle] = model.seoTitle
         it[seoDescription] = model.seoDescription
         it[seoKeywords] = model.seoKeywords
         it[seoCanonicalUrl] = model.seoCanonicalUrl
         it[published] = model.published
-        it[publishedAt] = model.publishedAt
-        it[createdAt] = model.createdAt
-        it[updatedAt] = model.updatedAt
+        val timestamp = System.currentTimeMillis()
+        if(model.publishedAt < 1000 && model.published){
+            it[publishedAt] = model.publishedAt
+        }
+        else{
+            it[publishedAt] = 0
+        }
+        if(isCreating){
+            it[createdAt] = timestamp
+        }
+        it[updatedAt] = timestamp
     }
 
     private fun rowToModel(row: ResultRow): VideoImpl {
@@ -161,6 +202,7 @@ object VideoDAO: LongIdTable("videos") {
             title = row[title],
             slug = row[slug],
             description = row[description],
+            video = row[video],
             tags = row[tags],
             seoTitle = row[seoTitle],
             seoDescription = row[seoDescription],

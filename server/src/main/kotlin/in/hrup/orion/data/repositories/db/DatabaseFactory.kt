@@ -3,8 +3,10 @@ package `in`.hrup.orion.data.repositories.db
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import `in`.hrup.orion.data.modelsImpl.UserImpl
+import `in`.hrup.orion.data.repositories.db.tables.CategoryDAO
 import `in`.hrup.orion.data.repositories.db.tables.PostDAO
 import `in`.hrup.orion.data.repositories.db.tables.UserDAO
+import `in`.hrup.orion.data.repositories.db.tables.VideoDAO
 import `in`.hrup.orion.domain.utils.FileUtil
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -38,6 +40,8 @@ object DatabaseFactory {
                 }
             }
             SchemaUtils.create(PostDAO)
+            SchemaUtils.create(VideoDAO)
+            SchemaUtils.create(CategoryDAO)
         }
     }
 

@@ -72,39 +72,48 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                 div("navbar-start") {
 
                     a(classes = "navbar-item") {
-                        href = "/dashboard"
+                        href = "/admin/dashboard"
                         +"Home"
                     }
 
                     div(classes = "navbar-item has-dropdown is-hoverable") {
                         a(classes = "navbar-link"){
-                            href = "/posts/index"
+                            href = "/admin/posts/index"
                             +"Новини"
                         }
                         div(classes = "navbar-dropdown") {
                             a(classes = "navbar-item"){
-                                href = "/posts/create"
+                                href = "/admin/posts/create"
                                 +" + Додати"
                             }
                             a(classes = "navbar-item js-modal-trigger"){
-                                href = "/posts/index"
+                                href = "/admin/posts/index"
                                 +"Cписок"
+                            }
+                            hr(classes = "navbar-divider"){}
+                            a(classes = "navbar-item"){
+                                href = "/admin/category/create"
+                                +" + Додати категорію"
+                            }
+                            a(classes = "navbar-item js-modal-trigger"){
+                                href = "/admin/posts/index"
+                                +"Категорії"
                             }
                         }
                     }
 
                     div(classes = "navbar-item has-dropdown is-hoverable") {
                         a(classes = "navbar-link"){
-                            href = "/video/index"
+                            href = "/admin/video/index"
                             +"Відео"
                         }
                         div(classes = "navbar-dropdown") {
                             a(classes = "navbar-item"){
-                                href = "/video/create"
+                                href = "/admin/video/create"
                                 +" + Додати"
                             }
                             a(classes = "navbar-item js-modal-trigger"){
-                                href = "/video/index"
+                                href = "/admin/video/index"
                                 +"Cписок"
                             }
                         }
@@ -116,7 +125,7 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                         }
                         div(classes = "navbar-dropdown") {
                             a(classes = "navbar-item"){
-                                href = "site/download"
+                                href = "/admin/site/download"
                                 +"Експорт"
                             }
                             a(classes = "navbar-item js-modal-trigger"){
@@ -124,11 +133,11 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                                 +"Імпорт"
                             }
                             a(classes = "navbar-item"){
-                                href = "site/edit"
+                                href = "/admin/site/edit"
                                 +"Редагувати"
                             }
                             a(classes = "navbar-item"){
-                                href = "site/build"
+                                href = "/admin/site/build"
                                 +"Скомпілювати"
                             }
                         }
@@ -158,7 +167,7 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                     idForm = "uploadForm"
                 ){
                     form(
-                        action = "/site",
+                        action = "/admin/site",
                         encType = FormEncType.multipartFormData,
                         method = FormMethod.post
                     ) {

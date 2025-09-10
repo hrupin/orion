@@ -5,6 +5,7 @@ interface Video {
     val title: String
     val slug: String
     val description: String
+    val video: String
     val tags: String
     val seoTitle: String
     val seoDescription: String

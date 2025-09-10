@@ -1,5 +1,11 @@
 package `in`.hrup.orion.domain.utils
 
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import java.util.UUID
+
 object StringUtil {
 
     val translitMap = mapOf(
@@ -20,6 +26,20 @@ object StringUtil {
             .replace(Regex("[^a-z0-9]+"), "-")
             .replace(Regex("-+"), "-")
             .trim('-')
+    }
+
+    fun getUUID(): String {
+        return UUID.randomUUID().toString()
+    }
+
+    fun formatTimestampToUkrainianDate(timestampMillis: Long): String {
+        if(timestampMillis < 1) return " - "
+        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm", Locale.forLanguageTag("uk"))
+        val date = Instant.ofEpochMilli(timestampMillis)
+            .atZone(ZoneId.of("Europe/Kyiv"))
+            .format(formatter)
+
+        return date
     }
 
 }

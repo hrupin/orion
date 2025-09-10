@@ -1,24 +1,20 @@
 package `in`.hrup.orion.presentation.controllers
 
-import `in`.hrup.orion.data.modelsImpl.PostImpl
+import `in`.hrup.orion.data.modelsImpl.VideoImpl
 import `in`.hrup.orion.domain.utils.StringUtil
 import `in`.hrup.orion.presentation.models.Uploader
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receiveMultipart
-import io.ktor.utils.io.cancel
-import io.ktor.utils.io.jvm.javaio.copyTo
 import java.io.File
 
-class PostsController {
+class VideosController {
 
-    suspend fun create(call: ApplicationCall): PostImpl {
+    suspend fun create(call: ApplicationCall): VideoImpl {
         var title = ""
         var slug = ""
-        var content = ""
         var description = ""
-        var category = ""
         var tags = ""
         var seoTitle = ""
         var seoDescription = ""
@@ -35,10 +31,10 @@ class PostsController {
                     when (part.name) {
                         "title" -> {
                             title = part.value
-                            seoCanonicalUrl = "/posts/" + StringUtil.toSlug(part.value)
-                            slug = StringUtil.toSlug(part.value)
+                            val slugTmp = StringUtil.toSlug(part.value)
+                            seoCanonicalUrl = "/video/" + slugTmp
+                            slug = slugTmp
                         }
-                        "content" -> content = part.value
                         "description" -> description = part.value
                         "tags" -> tags = part.value
                         "seoTitle" -> seoTitle = part.value
@@ -50,21 +46,19 @@ class PostsController {
                 is PartData.FileItem -> {
                     fileName = Uploader.file(
                         part = part,
-                        dir = "posts",
-                        allowedExt = listOf("jpg", "jpeg", "png")
+                        dir = "video",
+                        allowedExt = listOf("mp4", "webm", "mov", "mkv")
                     )
                 }
                 else -> {}
             }
         }
-        return PostImpl(
+        return VideoImpl(
             id = 0,
             title = title,
             slug = slug,
-            content = content,
             description = description,
-            image = fileName,
-            category = category,
+            video = fileName,
             tags = tags,
             seoTitle = seoTitle,
             seoDescription = seoDescription,

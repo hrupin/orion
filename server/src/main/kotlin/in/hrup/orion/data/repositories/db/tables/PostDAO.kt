@@ -23,12 +23,14 @@ object PostDAO: LongIdTable("posts") {
     val content = this.text("content")
     val description = this.varchar("description", 512)
     val tags = this.varchar("tags", 512)
+    val image = this.varchar("image", 512)
+    val category = this.varchar("category", 256)
     val seoTitle = this.varchar("seoTitle", 512)
     val seoDescription = this.varchar("seoDescription", 512)
     val seoKeywords = this.varchar("seoKeywords", 512)
     val seoCanonicalUrl = this.varchar("seoCanonicalUrl", 512)
     val published = this.bool("published")
-    val publishedAt = this.long("publishedAt")
+    val publishedAt = this.long("publishedAt").default(0)
     val createdAt = this.long("createdAt")
     val updatedAt = this.long("updatedAt")
 
@@ -87,7 +89,7 @@ object PostDAO: LongIdTable("posts") {
         }
     }
 
-    fun fetchPaged(limit: Int, offset: Int, month: Int? = null, year: Int? = null, tag: String? = null): List<PostImpl> {
+    fun fetchPaged(limit: Int, offset: Int, month: Int? = null, year: Int? = null, tag: String? = null, category: String? = null): List<PostImpl> {
         return transaction {
             try {
                 val query = PostDAO.selectAll()
@@ -104,6 +106,11 @@ object PostDAO: LongIdTable("posts") {
                     val pattern = "%${tag.trim()}%"
                     query.andWhere {
                         PostDAO.tags like pattern
+                    }
+                }
+                if(!category.isNullOrBlank()){
+                    query.andWhere {
+                        PostDAO.category like category
                     }
                 }
                 query.orderBy(PostDAO.publishedAt, SortOrder.DESC)
@@ -129,6 +136,38 @@ object PostDAO: LongIdTable("posts") {
         }
     }
 
+    fun publish(id: Long): Boolean{
+        return transaction {
+            try{
+                update({ PostDAO.id.eq(id) }){
+                    it[published] = true
+                    val timestamp = System.currentTimeMillis()
+                    it[publishedAt] = timestamp
+                } > 0
+            }
+            catch (e: Exception){
+                println("ERROR in PostDAO.publish: ${e.message}")
+                false
+            }
+        }
+    }
+
+    fun unpublish(id: Long): Boolean{
+        return transaction {
+            try{
+                update({ PostDAO.id.eq(id) }){
+                    it[VideoDAO.published] = false
+                    val timestamp = System.currentTimeMillis()
+                    it[VideoDAO.publishedAt] = timestamp
+                } > 0
+            }
+            catch (e: Exception){
+                println("ERROR in PostDAO.unpublish: ${e.message}")
+                false
+            }
+        }
+    }
+
     fun count(): Long{
         return transaction {
             try{
@@ -145,6 +184,7 @@ object PostDAO: LongIdTable("posts") {
         it[slug] = model.slug
         it[content] = model.content
         it[description] = model.description
+        it[image] = model.image
         it[seoTitle] = model.seoTitle
         it[seoDescription] = model.seoDescription
         it[tags] = model.tags
@@ -154,6 +194,9 @@ object PostDAO: LongIdTable("posts") {
         val timestamp = System.currentTimeMillis()
         if(model.publishedAt < 1000 && model.published){
             it[publishedAt] = model.publishedAt
+        }
+        else{
+            it[publishedAt] = 0
         }
         if(isCreating){
             it[createdAt] = timestamp
@@ -169,6 +212,8 @@ object PostDAO: LongIdTable("posts") {
             content = row[content],
             description = row[description],
             tags = row[tags],
+            image = row[image],
+            category = row[category],
             seoTitle = row[seoTitle],
             seoDescription = row[seoDescription],
             seoKeywords = row[seoKeywords],

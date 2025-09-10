@@ -10,6 +10,8 @@ data class PostImpl(
     override val description: String,
     override val tags: String,
     override val seoTitle: String,
+    override val image: String,
+    override val category: String,
     override val seoDescription: String,
     override val seoKeywords: String,
     override val seoCanonicalUrl: String,

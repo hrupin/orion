@@ -7,6 +7,8 @@ interface Post {
     val content: String
     val description: String
     val tags: String
+    val image: String
+    val category: String
     val seoTitle: String
     val seoDescription: String
     val seoKeywords: String
