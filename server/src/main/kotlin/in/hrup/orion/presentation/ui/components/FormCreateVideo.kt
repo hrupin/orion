@@ -11,23 +11,36 @@ import kotlinx.html.FlowContent
 import `in`.hrup.orion.data.modelsImpl.VideoImpl
 import kotlinx.html.FormEncType
 import kotlinx.html.script
+import kotlinx.html.source
 import kotlinx.html.unsafe
+import kotlinx.html.video
 
 fun FlowContent.formCreateVideo(video: VideoImpl? = null) {
 
-    form(classes = "box", action = "/video/create", method = FormMethod.post, encType = FormEncType.multipartFormData) {
+    form(classes = "box", action = "/admin/video/create", method = FormMethod.post, encType = FormEncType.multipartFormData) {
 
         input(type = InputType.hidden, name = "id") {
             value = video?.id?.toString() ?: "0"
         }
 
         field("Title", "title", video?.title)
-        field("Tags", "tags", video?.tags)
         field("SEO Title", "seoTitle", video?.seoTitle)
         field("SEO Description", "seoDescription", video?.seoDescription)
         field("SEO Keywords", "seoKeywords", video?.seoKeywords)
 
         fileField("Video", "description")
+
+        if(video != null) {
+            video{
+                height = 100.toString()
+                autoPlay = true
+                controls = true
+                source {
+                    src = "/admin/video/${video.id}"
+                    +"Your browser does not support the video tag."
+                }
+            }
+        }
 
 //        field("Slug", "slug", post?.slug)
 //        field("SEO Canonical URL", "seoCanonicalUrl", post?.seoCanonicalUrl)
@@ -49,7 +62,6 @@ fun FlowContent.formCreateVideo(video: VideoImpl? = null) {
                 }
             }
         }
-
 
         script {
             unsafe {

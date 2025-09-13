@@ -9,6 +9,8 @@ import kotlinx.html.ButtonType
 import kotlinx.html.FormMethod
 import kotlinx.html.FlowContent
 import `in`.hrup.orion.data.modelsImpl.PostImpl
+import `in`.hrup.orion.domain.usecases.category.GetMapCategoriesUseCase
+import `in`.hrup.orion.domain.usecases.posts.GetTagsUseCase
 import kotlinx.html.FormEncType
 import kotlinx.html.br
 import kotlinx.html.hidden
@@ -21,34 +23,35 @@ import kotlinx.html.unsafe
 
 fun FlowContent.formCreatePost(post: PostImpl? = null) {
 
-    form(classes = "box", action = "/posts/create", method = FormMethod.post, encType = FormEncType.multipartFormData) {
+    val tags = listOf("war", "dpsu")
+
+    form(classes = "box", action = "/admin/posts/create", method = FormMethod.post, encType = FormEncType.multipartFormData) {
 
         link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css")
 
         input(type = InputType.hidden, name = "id") {
             value = post?.id?.toString() ?: "0"
         }
+        input(type = InputType.hidden, name = "oldFileName") {
+            value = post?.image ?: ""
+        }
 
         field("Title", "title", post?.title)
-        field("Tags", "tags", post?.tags)
+        fieldTags(labelText = "Tags", nameField = "tags", options = GetTagsUseCase.execute(), idField = "tag-input", selectedValues = post?.tags?.split(","))
         field("SEO Title", "seoTitle", post?.seoTitle)
         field("SEO Description", "seoDescription", post?.seoDescription)
         field("SEO Keywords", "seoKeywords", post?.seoKeywords)
         selectField(
             labelText = "Category",
-            options = mapOf(
-                "apple" to "Яблоко",
-                "banana" to "Банан",
-                "orange" to "Апельсин"
-            )
+            nameField = "category",
+            options = GetMapCategoriesUseCase.execute()
         )
-        field("Category", "category", post?.category)
 
         fileField("Image", "description")
 
         if(post?.image != null && post.image.isNotEmpty() == true) {
             img(classes = "img_preview"){
-                src = "https://99evro.ru/wp-content/uploads/2025/03/spiaggia-bellissima-puglia-beach-photos.webp"
+                src = "/admin/image/${post.id}"
             }
         }
 
@@ -70,9 +73,12 @@ fun FlowContent.formCreatePost(post: PostImpl? = null) {
             attributes["defer"] = ""
         }
 
+
+
         script {
             unsafe {
                 +"""document.addEventListener('DOMContentLoaded', () => {
+                        
                         const toolbarOptions = [
                           ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
                           ['blockquote', 'code-block'],
@@ -99,7 +105,7 @@ fun FlowContent.formCreatePost(post: PostImpl? = null) {
                                 toolbar: toolbarOptions
                             }
                         });
-                        quill.root.innerHTML = '${post?.content}'
+                        quill.root.innerHTML = '${post?.content ?: ""}'
                         const textarea_content = document.getElementById('textarea_content');
                         quill.on('text-change', () => {
                             textarea_content.value = quill.root.innerHTML;

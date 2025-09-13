@@ -1,7 +1,6 @@
 package `in`.hrup.orion.data.repositories.db.tables
 
 import `in`.hrup.orion.data.modelsImpl.CategoryImpl
-import `in`.hrup.orion.data.modelsImpl.PostImpl
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -17,6 +16,10 @@ object CategoryDAO: LongIdTable("category") {
 
     val name = this.varchar("name", 512)
     val alias = this.varchar("alias", 512).uniqueIndex()
+    val seoTitle = this.varchar("seoTitle", 512)
+    val seoDescription = this.varchar("seoDescription", 512)
+    val seoKeywords = this.varchar("seoKeywords", 512)
+    val seoCanonicalUrl = this.varchar("seoCanonicalUrl", 512)
 
 
     fun insert(model: CategoryImpl): Long{
@@ -90,6 +93,10 @@ object CategoryDAO: LongIdTable("category") {
     private fun modelToRow(it: UpdateBuilder<Any>, model: CategoryImpl){
         it[name] = model.name
         it[alias] = model.alias
+        it[seoTitle] = model.seoTitle
+        it[seoDescription] = model.seoDescription
+        it[seoKeywords] = model.seoKeywords
+        it[seoCanonicalUrl] = model.seoCanonicalUrl
     }
 
     private fun rowToModel(row: ResultRow): CategoryImpl {
@@ -97,6 +104,10 @@ object CategoryDAO: LongIdTable("category") {
             id = row[id].value,
             name = row[name],
             alias = row[alias],
+            seoTitle = row[seoTitle],
+            seoDescription = row[seoDescription],
+            seoKeywords = row[seoKeywords],
+            seoCanonicalUrl = row[seoCanonicalUrl]
         )
     }
 

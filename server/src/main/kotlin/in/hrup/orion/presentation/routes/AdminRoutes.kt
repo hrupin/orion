@@ -18,11 +18,18 @@ import `in`.hrup.orion.domain.usecases.auth.LoginUseCase
 import `in`.hrup.orion.presentation.ui.layouts.authLayout
 import `in`.hrup.orion.presentation.ui.screens.authScreen
 import `in`.hrup.orion.domain.usecases.auth.GetUserSessionByUsernameUseCase
+import `in`.hrup.orion.domain.usecases.category.AddOrUpdateCategoryUseCase
+import `in`.hrup.orion.domain.usecases.category.CreateCategoryUseCase
+import `in`.hrup.orion.domain.usecases.category.GetCategoriesUseCase
+import `in`.hrup.orion.domain.usecases.category.GetCategoryByIdUseCase
+import `in`.hrup.orion.domain.usecases.category.RemoveCategoryByIdUseCase
+import `in`.hrup.orion.domain.usecases.posts.AddOrUpdatePostUseCase
 import `in`.hrup.orion.domain.usecases.posts.CreatePostUseCase
 import `in`.hrup.orion.domain.usecases.posts.FetchPagedPostsUseCase
 import `in`.hrup.orion.domain.usecases.posts.GetPostByIdUseCase
 import `in`.hrup.orion.domain.usecases.posts.PublishUnpublishPostUseCase
 import `in`.hrup.orion.domain.usecases.posts.RemovePostByIdUseCase
+import `in`.hrup.orion.domain.usecases.videos.AddOrUpdateVideoUseCase
 import `in`.hrup.orion.domain.usecases.videos.CreateVideoUseCase
 import `in`.hrup.orion.domain.usecases.videos.FetchPagedVideosUseCase
 import `in`.hrup.orion.domain.usecases.videos.GetVideoByIdUseCase
@@ -30,6 +37,7 @@ import `in`.hrup.orion.domain.usecases.videos.PublishUnpublishVideoUseCase
 import `in`.hrup.orion.domain.usecases.videos.RemoveVideoByIdUseCase
 import `in`.hrup.orion.domain.utils.FileUtil
 import `in`.hrup.orion.domain.utils.Tree
+import `in`.hrup.orion.presentation.controllers.CategoriesController
 import `in`.hrup.orion.presentation.controllers.PostsController
 import `in`.hrup.orion.presentation.controllers.VideosController
 import `in`.hrup.orion.presentation.ui.components.NotificationType
@@ -38,9 +46,11 @@ import `in`.hrup.orion.presentation.ui.screens.site.createCategoryScreen
 import `in`.hrup.orion.presentation.ui.screens.site.createPostScreen
 import `in`.hrup.orion.presentation.ui.screens.site.createVideoScreen
 import `in`.hrup.orion.presentation.ui.screens.site.editScreen
+import `in`.hrup.orion.presentation.ui.screens.site.indexCategoriesScreen
 import `in`.hrup.orion.presentation.ui.screens.site.indexPostScreen
 import `in`.hrup.orion.presentation.ui.screens.site.indexScreen
 import `in`.hrup.orion.presentation.ui.screens.site.indexVideoScreen
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -49,6 +59,7 @@ import io.ktor.server.request.path
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.request.uri
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import java.io.File
@@ -319,7 +330,7 @@ fun Application.adminRoutes() {
             val controller = PostsController()
             val post = controller.create(call = call)
 
-            if(CreatePostUseCase.execute(post = post)){
+            if(AddOrUpdatePostUseCase.execute(model = post)){
                 call.respondRedirect("/admin/posts/index")
             }
             else{
@@ -332,64 +343,66 @@ fun Application.adminRoutes() {
 
         }
 
+        get("/admin/category/index"){
+            var pathOnly = call.request.path()
+            val currentUrl = call.request.uri
+            val action = call.request.queryParameters["action"].toString()
+            if(action != null){
+                val id = call.request.queryParameters["id"]?.toLongOrNull()
+                if (id != null) {
+                    when (action) {
+                        "remove" -> {
+                            RemoveCategoryByIdUseCase.execute(id = id)
+//                            RemovePostByIdUseCase.execute(id = id)
+                            call.respondRedirect(pathOnly)
+                        }
+                        "edit" -> {
+                            call.respondRedirect("/admin/category/create?id=${id}")
+                        }
+                        else -> {
 
+                        }
+                    }
 
+                }
+            }
+
+            val categories = GetCategoriesUseCase.execute()
+            call.respondHtml {
+                adminLayout {
+                    indexCategoriesScreen(categories = categories, url = currentUrl)
+                }
+            }
+        }
 
         get("/admin/category/create"){
             val id = call.request.queryParameters["id"]?.toLongOrNull()
             var category: CategoryImpl? = null
-//            if (id != null) {
-                //post = GetPostByIdUseCase.execute(id = id)
-//            }
+            if (id != null) {
+                category = GetCategoryByIdUseCase.execute(id = id)
+            }
             call.respondHtml {
                 adminLayout {
-                    createCategoryScreen(category = null)
+                    createCategoryScreen(category = category)
                 }
             }
         }
 
         post("/admin/category/action") {
-            val controller = PostsController()
-            val post = controller.create(call = call)
-
-            if(CreatePostUseCase.execute(post = post)){
+            val controller = CategoriesController()
+            val category = controller.create(call = call)
+            if(AddOrUpdateCategoryUseCase.execute(model = category)){
                 call.respondRedirect("/admin/category/index")
             }
             else{
                 call.respondHtml {
                     adminLayout {
-                        createPostScreen(post = post)
+                        createCategoryScreen(category = category)
                     }
                 }
             }
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         get("/admin/video/index"){
             var pathOnly = call.request.path()
@@ -421,7 +434,7 @@ fun Application.adminRoutes() {
                             call.respondRedirect(pathOnly)
                         }
                         "edit" -> {
-
+                            call.respondRedirect("/admin/video/create?id=${id}")
                         }
                         else -> {
 
@@ -467,13 +480,13 @@ fun Application.adminRoutes() {
         post("/admin/video/create") {
             val controller = VideosController()
             val video = controller.create(call = call)
-            if(CreateVideoUseCase.execute(video = video)){
-                call.respondRedirect("/admin/posts/index")
+            if(AddOrUpdateVideoUseCase.execute(model = video)){
+                call.respondRedirect("/admin/video/index")
             }
             else{
                 call.respondHtml {
                     adminLayout {
-                        //createPostScreen(post = post)
+                        createVideoScreen(video = video)
                     }
                 }
             }
@@ -488,6 +501,64 @@ fun Application.adminRoutes() {
 //                    allowedExt = listOf("mp4", "webm")
 //                )
 //            }
+        }
+
+        get("/admin/image/{id}") {
+            val id = call.parameters["id"]
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing image ID.")
+                return@get
+            }
+
+            val post = GetPostByIdUseCase.execute(id = id.toLong())
+            if(post == null){
+                call.respond(HttpStatusCode.BadRequest, "Missing image.")
+                return@get
+            }
+            val imageDir = File("${FileUtil.getDirMain()}/posts/${post?.image}")
+            if (!imageDir.exists()) {
+                call.respond(HttpStatusCode.NotFound, "Image directory not found.")
+                return@get
+            }
+
+            val fileName = post.image
+            val imageFile = File("${FileUtil.getDirMain()}/posts", fileName)
+
+            if (!imageFile.exists() || !imageFile.isFile) {
+                call.respond(HttpStatusCode.NotFound, "Image file not found on disk.")
+                return@get
+            }
+
+            call.respondFile(imageFile)
+        }
+
+        get("/admin/video/{id}") {
+            val id = call.parameters["id"]
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing image ID.")
+                return@get
+            }
+
+            val video = GetVideoByIdUseCase.execute(id = id.toLong())
+            if(video == null){
+                call.respond(HttpStatusCode.BadRequest, "Missing image.")
+                return@get
+            }
+            val videoDir = File("${FileUtil.getDirMain()}/video")
+            if (!videoDir.exists()) {
+                call.respond(HttpStatusCode.NotFound, "Video directory not found.")
+                return@get
+            }
+
+            val fileName = video.video
+            val videoFile = File("${FileUtil.getDirMain()}/video", fileName)
+
+            if (!videoFile.exists() || !videoFile.isFile) {
+                call.respond(HttpStatusCode.NotFound, "Video file not found on disk.")
+                return@get
+            }
+
+            call.respondFile(videoFile)
         }
 
 

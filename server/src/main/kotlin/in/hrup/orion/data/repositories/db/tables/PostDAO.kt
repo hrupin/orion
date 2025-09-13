@@ -136,6 +136,24 @@ object PostDAO: LongIdTable("posts") {
         }
     }
 
+    fun fetchTags(): List<String>{
+        return transaction {
+            try{
+                slice(tags)
+                    .selectAll()
+                    .map { it[tags] }
+                    .flatMap { it.split(",") }
+                    .map { it.trim().lowercase() }
+                    .filter { it.isNotEmpty() }
+                    .toSet()
+                    .toList()
+            }catch (e: Exception){
+                println("ERROR in PostDAO.fetchTags.: ${e.message}")
+                listOf()
+            }
+        }
+    }
+
     fun publish(id: Long): Boolean{
         return transaction {
             try{
@@ -185,6 +203,7 @@ object PostDAO: LongIdTable("posts") {
         it[content] = model.content
         it[description] = model.description
         it[image] = model.image
+        it[category] = model.category
         it[seoTitle] = model.seoTitle
         it[seoDescription] = model.seoDescription
         it[tags] = model.tags

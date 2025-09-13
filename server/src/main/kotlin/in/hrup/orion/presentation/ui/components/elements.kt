@@ -10,13 +10,24 @@ import kotlinx.html.id
 import kotlinx.html.input
 import kotlinx.html.label
 import kotlinx.html.li
+import kotlinx.html.link
 import kotlinx.html.nav
 import kotlinx.html.option
 import kotlinx.html.p
+import kotlinx.html.script
 import kotlinx.html.select
 import kotlinx.html.span
 import kotlinx.html.textArea
 import kotlinx.html.ul
+import kotlinx.html.unsafe
+import kotlin.collections.component1
+import kotlin.collections.component2
+
+fun FlowContent.fieldHidden(name: String, value: String? = null){
+    input(classes = "input", type = InputType.hidden, name = name) {
+        value?.let { this.value = it }
+    }
+}
 
 fun FlowContent.field(labelText: String, name: String, value: String? = null, idField: String = "") {
     div("field is-horizontal") {
@@ -35,6 +46,54 @@ fun FlowContent.field(labelText: String, name: String, value: String? = null, id
         }
     }
 }
+fun FlowContent.fieldTags(
+    labelText: String,
+    nameField: String,
+    options: List<String> = emptyList(),    // уже выбранные теги
+    idField: String = "",
+    selectedValues: List<String>? = null
+) {
+    div("field is-horizontal") {
+        div("field-label is-normal") {
+            label("label mar0") { +labelText }
+        }
+        div("field-body") {
+            div("field") {
+                div("control") {
+                    div(classes = "select tagInput") {
+                        select {
+                            name = "${nameField}[]"
+                            id = idField
+                            attributes["multiple"] = "true"
+                            options.forEach { it ->
+                                option{
+                                    value = it
+                                    +it
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css")
+    script {
+        src = "https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"
+        attributes["defer"] = ""
+    }
+    script {
+        unsafe {
+            +"""document.addEventListener('DOMContentLoaded', () => {
+                let tomSelect = new TomSelect('#tag-input', {
+                  create: true,
+                  persist: false,
+                });
+                tomSelect.setValue(${selectedValues?.map { "\"$it\"" }});
+            });"""
+        }
+    }
+}
 
 fun FlowContent.textareaField(labelText: String, ids: String = "", name: String, value: String? = null, rows: Int? = 3) {
     div("field") {
@@ -43,7 +102,7 @@ fun FlowContent.textareaField(labelText: String, ids: String = "", name: String,
             attributes["name"] = name
             attributes["placeholder"] = labelText
             attributes["rows"] = rows.toString()
-            +if(value != null) "$value%" else ""
+            +if(value != null) "$value" else ""
         }
     }
 }
@@ -90,7 +149,7 @@ fun FlowContent.fileField(labelText: String, name: String) {
     }
 }
 
-fun FlowContent.selectField(labelText: String = "", options: Map<String, String> = mapOf()){
+fun FlowContent.selectField(labelText: String = "", nameField: String, options: Map<String, String> = mapOf()){
 
     div("field is-horizontal") {
         div(classes = "field-label is-normal"){
@@ -99,7 +158,7 @@ fun FlowContent.selectField(labelText: String = "", options: Map<String, String>
         div(classes = "field-body") {
             div(classes = "select") {
                 select {
-                    name = "choice"
+                    name = nameField
                     options.forEach { (valueOption, label) ->
                         option{
                             value = valueOption

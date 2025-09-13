@@ -96,7 +96,7 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                                 +" + Додати категорію"
                             }
                             a(classes = "navbar-item js-modal-trigger"){
-                                href = "/admin/posts/index"
+                                href = "/admin/category/index"
                                 +"Категорії"
                             }
                         }

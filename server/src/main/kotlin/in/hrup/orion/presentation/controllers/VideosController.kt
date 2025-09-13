@@ -59,7 +59,7 @@ class VideosController {
             slug = slug,
             description = description,
             video = fileName,
-            tags = tags,
+            tags = "",
             seoTitle = seoTitle,
             seoDescription = seoDescription,
             seoKeywords = seoKeywords,

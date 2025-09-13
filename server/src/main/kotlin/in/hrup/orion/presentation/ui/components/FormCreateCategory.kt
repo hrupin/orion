@@ -1,7 +1,5 @@
 package `in`.hrup.orion.presentation.ui.components
 
-import `in`.hrup.orion.data.modelsImpl.CategoryImpl
-import `in`.hrup.orion.data.modelsImpl.PostImpl
 import kotlinx.html.ButtonType
 import kotlinx.html.FlowContent
 import kotlinx.html.FormEncType
@@ -10,18 +8,20 @@ import kotlinx.html.br
 import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.form
-import kotlinx.html.id
 import kotlinx.html.script
-import kotlinx.html.textArea
 import kotlinx.html.unsafe
-
+import `in`.hrup.orion.data.modelsImpl.CategoryImpl
 
 fun FlowContent.formCreateCategory(category: CategoryImpl? = null) {
 
     form(classes = "box", action = "/admin/category/action", method = FormMethod.post, encType = FormEncType.multipartFormData) {
 
+        fieldHidden("id", category?.id.toString())
         field("Category name", "name", category?.name, "name")
         field("Category alias", "alias", category?.alias, "alias")
+        field("SEO Title", "seoTitle", category?.seoTitle)
+        field("SEO Description", "seoDescription", category?.seoDescription)
+        field("SEO Keywords", "seoKeywords", category?.seoKeywords)
 
         br{}
 

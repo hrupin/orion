@@ -3,10 +3,10 @@ package `in`.hrup.orion.domain.usecases.category
 import `in`.hrup.orion.data.modelsImpl.CategoryImpl
 import `in`.hrup.orion.data.repositories.db.tables.CategoryDAO
 
-object GetCategoryByIdUseCase {
+object CreateCategoryUseCase {
 
-    fun execute(id: Long) : CategoryImpl? {
-        return CategoryDAO.fetchById(id = id)
+    fun execute(category: CategoryImpl): Boolean {
+        return CategoryDAO.insert(model = category) > 0
     }
 
 }
