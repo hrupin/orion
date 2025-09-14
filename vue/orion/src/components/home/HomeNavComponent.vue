@@ -5,7 +5,7 @@
         <img src="@/assets/img/homenav1.jpg" alt="">
         <div class="home_nav__info">Відео</div>
       </a>
-      <a href="#" class="home_nav__item">
+      <a href="/about" class="home_nav__item">
         <img src="@/assets/img/homenav2.jpg" alt="">
         <div class="home_nav__info">Про нас</div>
       </a>

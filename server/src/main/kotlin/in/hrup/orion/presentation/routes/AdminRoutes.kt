@@ -3,7 +3,9 @@ package `in`.hrup.orion.presentation.routes
 import `in`.hrup.orion.Config
 import `in`.hrup.orion.data.modelsImpl.CategoryImpl
 import `in`.hrup.orion.data.modelsImpl.PostImpl
+import `in`.hrup.orion.data.modelsImpl.QuestionnaireImpl
 import `in`.hrup.orion.data.modelsImpl.VideoImpl
+import `in`.hrup.orion.domain.usecases.api.GetFaqsUseCase
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
@@ -23,12 +25,18 @@ import `in`.hrup.orion.domain.usecases.category.CreateCategoryUseCase
 import `in`.hrup.orion.domain.usecases.category.GetCategoriesUseCase
 import `in`.hrup.orion.domain.usecases.category.GetCategoryByIdUseCase
 import `in`.hrup.orion.domain.usecases.category.RemoveCategoryByIdUseCase
+import `in`.hrup.orion.domain.usecases.faq.AddOrUpdateFaqUseCase
+import `in`.hrup.orion.domain.usecases.faq.GetFaqByIdUseCase
+import `in`.hrup.orion.domain.usecases.faq.RemoveFaqUseCase
 import `in`.hrup.orion.domain.usecases.posts.AddOrUpdatePostUseCase
 import `in`.hrup.orion.domain.usecases.posts.CreatePostUseCase
 import `in`.hrup.orion.domain.usecases.posts.FetchPagedPostsUseCase
 import `in`.hrup.orion.domain.usecases.posts.GetPostByIdUseCase
 import `in`.hrup.orion.domain.usecases.posts.PublishUnpublishPostUseCase
 import `in`.hrup.orion.domain.usecases.posts.RemovePostByIdUseCase
+import `in`.hrup.orion.domain.usecases.questionnaire.GetQuestionnairesDtoUseCase
+import `in`.hrup.orion.domain.usecases.questionnaire.RemoveQuestionnaireUseCase
+import `in`.hrup.orion.domain.usecases.questionnaire.SetStatusQuestionnaireUseCase
 import `in`.hrup.orion.domain.usecases.videos.AddOrUpdateVideoUseCase
 import `in`.hrup.orion.domain.usecases.videos.CreateVideoUseCase
 import `in`.hrup.orion.domain.usecases.videos.FetchPagedVideosUseCase
@@ -38,6 +46,7 @@ import `in`.hrup.orion.domain.usecases.videos.RemoveVideoByIdUseCase
 import `in`.hrup.orion.domain.utils.FileUtil
 import `in`.hrup.orion.domain.utils.Tree
 import `in`.hrup.orion.presentation.controllers.CategoriesController
+import `in`.hrup.orion.presentation.controllers.FaqController
 import `in`.hrup.orion.presentation.controllers.PostsController
 import `in`.hrup.orion.presentation.controllers.VideosController
 import `in`.hrup.orion.presentation.ui.components.NotificationType
@@ -46,6 +55,7 @@ import `in`.hrup.orion.presentation.ui.screens.site.createCategoryScreen
 import `in`.hrup.orion.presentation.ui.screens.site.createPostScreen
 import `in`.hrup.orion.presentation.ui.screens.site.createVideoScreen
 import `in`.hrup.orion.presentation.ui.screens.site.editScreen
+import `in`.hrup.orion.presentation.ui.screens.site.faqScreen
 import `in`.hrup.orion.presentation.ui.screens.site.indexCategoriesScreen
 import `in`.hrup.orion.presentation.ui.screens.site.indexPostScreen
 import `in`.hrup.orion.presentation.ui.screens.site.indexScreen
@@ -108,16 +118,122 @@ fun Application.adminRoutes() {
             }
         }
 
-        get("/admin/dashboard"){
-            println("SESSION => ${call.sessions.get<UserSession>()}")
+        get("/admin/dashboard") {
+
+            var pathOnly = call.request.path()
+            val currentUrl = call.request.uri
+            val action = call.request.queryParameters["action"].toString()
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            if (page != null) {
+                pathOnly = "${pathOnly}?page=${page}"
+            }
+            println("URL -> ${currentUrl} = ${action}")
+
+            if(action != null){
+                val id = call.request.queryParameters["id"]?.toLongOrNull()
+                if (id != null) {
+                    when (action) {
+                        "process" -> {
+                            SetStatusQuestionnaireUseCase.execute(id = id, status = 1)
+                            call.respondRedirect(pathOnly)
+                            return@get
+                        }
+                        "remove" -> {
+                            RemoveQuestionnaireUseCase.execute(id = id)
+                            call.respondRedirect(pathOnly)
+                            return@get
+                        }
+                        else -> {}
+                    }
+
+                }
+            }
+
+            val offset = (page - 1) * Config.LIMIT
+            val questionnaires = GetQuestionnairesDtoUseCase.execute(
+                limit = Config.LIMIT,
+                offset = offset
+            )
             call.respondHtml {
                 adminLayout {
-                    indexScreen()
+                    indexScreen(questionnaires = questionnaires, url = currentUrl)
+                }
+            }
+
+        }
+
+        get("/admin/faq"){
+            var pathOnly = call.request.path()
+            val currentUrl = call.request.uri
+            val action = call.request.queryParameters["action"].toString()
+
+            if(action != null){
+                val id = call.request.queryParameters["id"]?.toLongOrNull()
+                if (id != null) {
+                    when (action) {
+                        "edit" -> {
+                            val faq = GetFaqByIdUseCase.execute(id = id)
+                            call.respondHtml {
+                                adminLayout {
+                                    faqScreen(
+                                        faqs = GetFaqsUseCase.execute(),
+                                        faq = faq,
+                                        url = "/admin/faq"
+                                    )
+                                }
+                            }
+                            return@get
+                        }
+                        "remove" -> {
+                            RemoveFaqUseCase.execute(id = id)
+                            call.respondRedirect(pathOnly)
+                            return@get
+                        }
+                        else -> {
+
+                        }
+                    }
+
+                }
+            }
+
+            call.respondHtml {
+                adminLayout {
+                    faqScreen(
+                        faqs = GetFaqsUseCase.execute(),
+                        url = "/admin/faq"
+                    )
+                }
+            }
+        }
+
+        post("/admin/faq"){
+            val controller = FaqController()
+            val model = controller.create(call = call)
+
+            if(AddOrUpdateFaqUseCase.execute(model = model)){
+                call.respondHtml {
+                    adminLayout {
+                        faqScreen(
+                            faqs = GetFaqsUseCase.execute()
+                        )
+                    }
+                }
+            }
+            else{
+                call.respondHtml {
+                    adminLayout {
+                        faqScreen(
+                            faqs = GetFaqsUseCase.execute(),
+                            faq = model
+                        )
+                    }
                 }
             }
         }
 
         post("/admin/site"){
+            val currentUrl = call.request.uri
             val uploadTempZipPath = File.createTempFile("vue-import-", ".zip")
             val vueExtractDir = File("${FileUtil.getDirMain()}/site")
             val multipart = call.receiveMultipart()
@@ -138,7 +254,13 @@ fun Application.adminRoutes() {
                         typeNotifications = NotificationType.DANGER,
                         messageNotification = "ZIP-файл не отримано"
                     ) {
-                        indexScreen()
+                        indexScreen(
+                            questionnaires = GetQuestionnairesDtoUseCase.execute(
+                                limit = Config.LIMIT,
+                                offset = 0
+                            ),
+                            url = currentUrl
+                        )
                     }
                 }
                 return@post
@@ -154,7 +276,13 @@ fun Application.adminRoutes() {
                         typeNotifications = NotificationType.DANGER,
                         messageNotification = e.message.toString()
                     ) {
-                        indexScreen()
+                        indexScreen(
+                            questionnaires = GetQuestionnairesDtoUseCase.execute(
+                                limit = Config.LIMIT,
+                                offset = 0
+                            ),
+                            url = currentUrl
+                        )
                     }
                 }
                 return@post
@@ -164,12 +292,19 @@ fun Application.adminRoutes() {
                     typeNotifications = NotificationType.SUCCESS,
                     messageNotification = "Проєкт Vue успішно імпортовано"
                 ) {
-                    indexScreen()
+                    indexScreen(
+                        questionnaires = GetQuestionnairesDtoUseCase.execute(
+                            limit = Config.LIMIT,
+                            offset = 0
+                        ),
+                        url = currentUrl
+                    )
                 }
             }
         }
 
         get("/admin/site/download") {
+            val currentUrl = call.request.uri
             val vueDir = File("${FileUtil.getDirMain()}/site")
             if (!vueDir.exists()) {
                 call.respondHtml {
@@ -177,7 +312,13 @@ fun Application.adminRoutes() {
                         typeNotifications = NotificationType.DANGER,
                         messageNotification = "Vue проект не найден"
                     ) {
-                        indexScreen()
+                        indexScreen(
+                            questionnaires = GetQuestionnairesDtoUseCase.execute(
+                                limit = Config.LIMIT,
+                                offset = 0
+                            ),
+                            url = currentUrl
+                        )
                     }
                 }
             }

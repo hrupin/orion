@@ -2,9 +2,13 @@ package `in`.hrup.orion.data.repositories.db
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import `in`.hrup.orion.data.modelsImpl.CustomDataImpl
 import `in`.hrup.orion.data.modelsImpl.UserImpl
 import `in`.hrup.orion.data.repositories.db.tables.CategoryDAO
+import `in`.hrup.orion.data.repositories.db.tables.CustomDataDAO
+import `in`.hrup.orion.data.repositories.db.tables.FaqDAO
 import `in`.hrup.orion.data.repositories.db.tables.PostDAO
+import `in`.hrup.orion.data.repositories.db.tables.QuestionnaireDAO
 import `in`.hrup.orion.data.repositories.db.tables.UserDAO
 import `in`.hrup.orion.data.repositories.db.tables.VideoDAO
 import `in`.hrup.orion.domain.utils.FileUtil
@@ -42,6 +46,24 @@ object DatabaseFactory {
             SchemaUtils.create(PostDAO)
             SchemaUtils.create(VideoDAO)
             SchemaUtils.create(CategoryDAO)
+            if (!CustomDataDAO.exists()) {
+                SchemaUtils.create(CustomDataDAO)
+                val data = FileUtil.readDataJsonFileDefaultSettings()
+                val gson = Gson()
+                val settingsType = object : TypeToken<List<CustomDataImpl>>(){}.type
+                val settings: List<CustomDataImpl> = gson.fromJson(data, settingsType)
+                settings.forEach {
+                    CustomDataDAO.insert(
+                        CustomDataImpl(
+                            id = it.id,
+                            name = it.name,
+                            value = it.value
+                        )
+                    )
+                }
+            }
+            SchemaUtils.create(FaqDAO)
+            SchemaUtils.create(QuestionnaireDAO)
         }
     }
 

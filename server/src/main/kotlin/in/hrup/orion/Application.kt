@@ -5,6 +5,8 @@ import `in`.hrup.orion.presentation.routes.adminRoutes
 import `in`.hrup.orion.presentation.routes.apiRoutes
 import `in`.hrup.orion.presentation.routes.configureSessionAuth
 import `in`.hrup.orion.presentation.routes.configureSessionStorage
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
@@ -26,6 +28,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.PrintStream
+import io.ktor.server.plugins.cors.routing.*
 
 fun main() {
 
@@ -43,11 +46,22 @@ fun Application.module() {
     configureSessionStorage()
 
     install(ContentNegotiation) {
-        json(Json { prettyPrint = true })
+        json(Json {
+            prettyPrint = true
+            ignoreUnknownKeys = true
+        })
     }
 
     install(Authentication) {
         configureSessionAuth()
+    }
+
+    install(CORS) {
+        allowHost("127.0.0.1:8081", schemes = listOf("http"))
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
+        allowHeader(HttpHeaders.ContentType)
+        allowCredentials = true
     }
 
     apiRoutes()
@@ -61,17 +75,6 @@ fun Application.module() {
         }
 
         val frontendDir = File("/home/orion/www/.orion/site/dist")
-
-//        staticFiles("/", frontendDir)
-//
-//        get("{...}") {
-//            val indexFile = File(frontendDir, "index.html")
-//            if (indexFile.exists()) {
-//                call.respondFile(indexFile)
-//            } else {
-//                call.respond(HttpStatusCode.NotFound, "index.html not found")
-//            }
-//        }
 
         route("/{...}") {
             handle {

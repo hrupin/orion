@@ -1,8 +1,10 @@
 package `in`.hrup.orion.data.repositories.db.tables
 
-import `in`.hrup.orion.data.modelsImpl.CustomDataImpl
+import `in`.hrup.orion.data.modelsImpl.FaqImpl
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -10,40 +12,53 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-object CustomDataDAO: LongIdTable("data") {
+object FaqDAO: LongIdTable("faq") {
 
-    val name = this.varchar("name", 512)
-    val value = this.text("value")
+    val question = this.text("question")
+    val answer = this.text("answer")
+    val sort = this.integer("sort")
 
-    fun insert(model: CustomDataImpl): Long{
+    fun insert(model: FaqImpl): Long{
         return transaction {
             try{
                 insert {
                     modelToRow(it = it, model = model)
-                }[CustomDataDAO.id].value
+                }[FaqDAO.id].value
             }
             catch (e: Exception){
-                println("ERROR in CustomDataDAO.insert: ${e.message}")
+                println("ERROR in FaqDAO.insert: ${e.message}")
                 0
             }
         }
     }
 
-    fun update(model: CustomDataImpl): Boolean{
+    fun update(model: FaqImpl): Boolean{
         return transaction {
             try{
-                update({ CustomDataDAO.id.eq(model.id) }){
+                update({ FaqDAO.id.eq(model.id) }){
                     modelToRow(it = it, model = model)
                 } > 0
             }
             catch (e: Exception){
-                println("ERROR in CustomDataDAO.update: ${e.message}")
+                println("ERROR in FaqDAO.update: ${e.message}")
                 false
             }
         }
     }
 
-    fun fetchByIds(ids: List<Long>): List<CustomDataImpl>{
+    fun remove(id: Long): Boolean{
+        return transaction{
+            try{
+                deleteWhere { FaqDAO.id eq id } > 0
+            }
+            catch (e: Exception){
+                println("ERROR in FaqDAO.remove: ${e.message}")
+                false
+            }
+        }
+    }
+
+    fun fetchAll(): List<FaqImpl>{
         return transaction {
             try{
                 selectAll()
@@ -51,50 +66,37 @@ object CustomDataDAO: LongIdTable("data") {
                         rowToModel(row = it)
                     }
             }catch (e: Exception){
-                println("ERROR in CustomDataDAO.fetchByIds: ${e.message}")
+                println("ERROR in FaqDAO.fetchByIds: ${e.message}")
                 listOf()
             }
         }
     }
 
-    fun fetchAll(): List<CustomDataImpl>{
+    fun fetchById(id: Long): FaqImpl? {
         return transaction {
             try{
-                selectAll()
-                    .map{
-                        rowToModel(row = it)
-                    }
-            }catch (e: Exception){
-                println("ERROR in CustomDataDAO.fetchByIds: ${e.message}")
-                listOf()
-            }
-        }
-    }
-
-    fun fetchById(id: Long): CustomDataImpl? {
-        return transaction {
-            try{
-                select { CustomDataDAO.id eq id }
+                select { FaqDAO.id eq id }
                     .singleOrNull()
                     ?.let{ rowToModel(row = it) }
             }catch (e: Exception){
-                println("ERROR in CustomDataDAO.fetchById: ${e.message}")
+                println("ERROR in FaqDAO.fetchById: ${e.message}")
                 null
             }
         }
     }
 
-    private fun modelToRow(it: UpdateBuilder<Any>, model: CustomDataImpl){
-        it[name] = model.name
-        it[value] = model.value
+    private fun modelToRow(it: UpdateBuilder<Any>, model: FaqImpl){
+        it[question] = model.question
+        it[answer] = model.answer
+        it[sort] = model.sort
     }
 
-    private fun rowToModel(row: ResultRow): CustomDataImpl {
-        return CustomDataImpl(
+    private fun rowToModel(row: ResultRow): FaqImpl {
+        return FaqImpl(
             id = row[id].value,
-            name = row[name],
-            value = row[value]
+            question = row[question],
+            answer = row[answer],
+            sort = row[sort]
         )
     }
-
 }

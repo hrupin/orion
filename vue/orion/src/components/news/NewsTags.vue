@@ -2,17 +2,34 @@
   <div class="news_tags">
     <div class="news_tags__title"><span>Теги</span></div>
     <div class="news_tags_list">
-      <a href="#" class="news_tag">Lorem ispum</a>
-      <a href="#" class="news_tag">Lorem ispum</a>
-      <a href="#" class="news_tag">Lorem ispum</a>
-      <a href="#" class="news_tag">Lorem ispum</a>
+      <a v-for="(item, index) in tags" :key="index" href="#" class="news_tag">{{item}}</a>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
-name: "NewsTags"
+  name: "NewsTags",
+  data() {
+    return {
+      tags: []
+    }
+  },
+  mounted() {
+    this.fetchTags();
+  },
+  methods: {
+    async fetchTags() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8080/api/tags');
+        this.tags = response.data;
+      } catch (error) {
+        console.error('Error loading recruitment center data:', error);
+      }
+    }
+  }
 }
 </script>
 

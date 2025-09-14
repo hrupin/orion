@@ -23,8 +23,6 @@ import kotlinx.html.unsafe
 
 fun FlowContent.formCreatePost(post: PostImpl? = null) {
 
-    val tags = listOf("war", "dpsu")
-
     form(classes = "box", action = "/admin/posts/create", method = FormMethod.post, encType = FormEncType.multipartFormData) {
 
         link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css")

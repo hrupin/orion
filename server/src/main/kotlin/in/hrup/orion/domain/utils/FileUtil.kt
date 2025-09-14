@@ -32,7 +32,17 @@ object FileUtil {
             val reader = InputStreamReader(inputStream)
             return reader.readText()
         } else {
-            throw RuntimeException("File not found: file.json")
+            throw RuntimeException("File not found: user.json")
+        }
+    }
+
+    fun readDataJsonFileDefaultSettings(): String {
+        val inputStream: InputStream? = javaClass.getResourceAsStream("/data/settings.json")
+        if (inputStream != null) {
+            val reader = InputStreamReader(inputStream)
+            return reader.readText()
+        } else {
+            throw RuntimeException("File not found: settings.json")
         }
     }
 

@@ -33,14 +33,22 @@
           </div>
         </div>
       </div>
-      <a href="#" class="btn_yellow">Заповнюй анкету</a>
+      <a href="#" class="btn_yellow" @click.prevent="openModal">Заповнюй анкету</a>
     </div>
   </section>
 </template>
 
 <script>
+
+import emitter from "@/eventBus";
+
 export default {
-name: "HomeYourWayComponent"
+  name: "HomeYourWayComponent",
+  methods: {
+    openModal() {
+      emitter.emit('open-modal');
+    },
+  }
 }
 </script>
 

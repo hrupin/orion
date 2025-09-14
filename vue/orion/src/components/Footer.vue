@@ -8,12 +8,12 @@
         <div class="footer_info">
           <div class="footer_info__block">
             <div class="footer_info__title">Рекрутинг</div>
-            <div class="footer_info__contact">м.Київ | 063 448 48 48</div>
-            <div class="footer_info__email">recruting@orion.ua</div>
+            <div class="footer_info__contact">{{ getItemById(8) }}</div>
+            <div class="footer_info__email">{{ getItemById(23) }}</div>
           </div>
           <div class="footer_info__block">
             <div class="footer_info__title">Рекрутинг</div>
-            <div class="footer_info__contact">м.Київ | 063 448 48 48</div>
+            <div class="footer_info__contact">{{ getItemById(9) }}</div>
             <div class="footer_info__email">пресцентр</div>
           </div>
           <div class="footer_info__block">
@@ -61,8 +61,31 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
-name: "FooterComponent"
+  name: "FooterComponent",
+  data() {
+    return {
+      settings: []
+    }
+  },
+  mounted() {
+    this.fetchSettings();
+  },
+  methods: {
+    async fetchSettings() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8080/api/settings');
+        this.settings = response.data;
+      } catch (error) {
+        console.error('Error loading recruitment center data:', error);
+      }
+    },
+    getItemById(id) {
+      return this.settings.find(item => item.id === id)?.value || "";
+    }
+  }
 }
 </script>
 

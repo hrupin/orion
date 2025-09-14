@@ -2,28 +2,36 @@
   <div class="news_categories">
     <div class="news_categories__title">Категорії блогу</div>
     <ul class="news_categories__list">
-      <li>
-        <a href="#">Категорія 1</a>
-      </li>
-      <li>
-        <a href="#">Категорія 2</a>
-      </li>
-      <li>
-        <a href="#">Категорія 3</a>
-      </li>
-      <li>
-        <a href="#">Категорія 4</a>
-      </li>
-      <li>
-        <a href="#">Категорія 5</a>
+      <li v-for="item in categories" :key="item.id">
+        <a href="/{{item.alias}}">{{item.name}}</a>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
-name: "NewsCategories"
+  name: "NewsCategories",
+  data() {
+    return {
+      categories: []
+    }
+  },
+  mounted() {
+    this.fetchCategories();
+  },
+  methods: {
+    async fetchCategories() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8080/api/categories');
+        this.categories = response.data;
+      } catch (error) {
+        console.error('Error loading recruitment center data:', error);
+      }
+    }
+  }
 }
 </script>
 

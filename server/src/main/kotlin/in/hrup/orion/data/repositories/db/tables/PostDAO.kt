@@ -72,7 +72,6 @@ object PostDAO: LongIdTable("posts") {
                 false
             }
         }
-
     }
 
     fun fetchAll(): List<PostImpl>{
@@ -135,6 +134,25 @@ object PostDAO: LongIdTable("posts") {
             }
         }
     }
+
+    fun fetchRandomTags(): List<String>{
+        return transaction {
+            try{
+                slice(tags)
+                    .selectAll()
+                    .map { it[tags] }
+                    .flatMap { it.split(",") }
+                    .map { it.trim().lowercase() }
+                    .filter { it.isNotEmpty() }
+                    .toSet()
+                    .toList()
+            }catch (e: Exception){
+                println("ERROR in PostDAO.fetchTags.: ${e.message}")
+                listOf()
+            }
+        }
+    }
+
 
     fun fetchTags(): List<String>{
         return transaction {

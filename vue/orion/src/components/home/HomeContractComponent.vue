@@ -12,7 +12,7 @@
             <br /><br />
             Від 18 до 24 років? Тоді це для тебе: чіткий термін служби, реальний досвід, гідний заробіток та підтримка від держави по завершенню.
           </div>
-          <a href="#" class="btn_black">Заповнюй анкету</a>
+          <a href="#" class="btn_black" @click.prevent="openModal">Заповнюй анкету</a>
         </div>
       </div>
     </div>
@@ -20,8 +20,16 @@
 </template>
 
 <script>
+
+import emitter from '../../eventBus';
+
 export default {
-name: "HomeContractComponent"
+  name: "HomeContractComponent",
+  methods: {
+    openModal() {
+      emitter.emit('open-modal');
+    },
+  }
 }
 </script>
 

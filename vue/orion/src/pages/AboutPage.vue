@@ -73,13 +73,14 @@
       </div>
       <div class="why_bottom">Захисти себе — захищаючи Україну. <span class="color_yellow">Підрозділ "Оріон" чекає на рішучих.</span></div>
       <div class="why_btn">
-        <a href="#" class="btn_yellow">Заповнюй анкету</a>
+        <a href="#" class="btn_yellow" @click.prevent="openModal">Заповнюй анкету</a>
       </div>
     </div>
   </section>
 </template>
 
 <script>
+import emitter from "@/eventBus";
 import Breadcrumb from "@/components/Breadcrumb";
 export default {
   name: "AboutPage",
@@ -91,6 +92,11 @@ export default {
       ]
     }
   },
+  methods: {
+    openModal() {
+      emitter.emit('open-modal');
+    },
+  }
 }
 </script>
 

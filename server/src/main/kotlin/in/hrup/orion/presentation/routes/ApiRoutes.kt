@@ -1,14 +1,24 @@
 package `in`.hrup.orion.presentation.routes
 
+import `in`.hrup.orion.data.modelsImpl.CustomDataImpl
+import `in`.hrup.orion.data.modelsImpl.QuestionnaireImpl
 import `in`.hrup.orion.domain.dto.PostsDTO
 import `in`.hrup.orion.domain.dto.VideosDTO
+import `in`.hrup.orion.domain.usecases.api.GetFaqsUseCase
+import `in`.hrup.orion.domain.usecases.api.GetSettingsUseCase
+import `in`.hrup.orion.domain.usecases.category.GetCategoriesUseCase
+import `in`.hrup.orion.domain.usecases.category.GetRandomTagsUseCase
 import `in`.hrup.orion.domain.usecases.posts.FetchPagedPostsUseCase
+import `in`.hrup.orion.domain.usecases.questionnaire.CreateQuestionnaireUseCase
 import `in`.hrup.orion.domain.usecases.videos.FetchPagedVideosUseCase
 import `in`.hrup.orion.presentation.queries.PostsQueryParams
 import `in`.hrup.orion.presentation.queries.VideosQueryParams
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 
 fun Application.apiRoutes() {
@@ -53,6 +63,39 @@ fun Application.apiRoutes() {
                 tag = params.tag
             )
             call.respond(result)
+        }
+
+        get("api/settings"){
+            val result = GetSettingsUseCase.execute()
+            val dtoList = result.map {
+                CustomDataImpl(it.id, it.name, it.value)
+            }
+            call.respond(dtoList)
+        }
+
+        get("api/categories"){
+            val result = GetCategoriesUseCase.execute()
+            call.respond(result)
+        }
+
+        get("api/tags"){
+            val result = GetRandomTagsUseCase.execute()
+            call.respond(result)
+        }
+
+        get("api/faq"){
+            val result = GetFaqsUseCase.execute()
+            call.respond(result)
+        }
+
+        post("/api/questionnaire"){
+            val formData = call.receive<QuestionnaireImpl>()
+            if(CreateQuestionnaireUseCase.execute(questionnaire = formData)){
+                call.respond(HttpStatusCode.OK)
+            }
+            else{
+                call.respond(HttpStatusCode.BadRequest)
+            }
         }
 
     }

@@ -102,21 +102,11 @@ object UserDAO: LongIdTable("users") {
     }
 
     fun checkByUserNameAndPassword(username: String, password: String): Boolean {
-
-        println("login: $username, password: ${password}")
-
         return transaction {
             try{
                 val query = select { (UserDAO.username eq username) and (UserDAO.password eq password) }
-
                 var b = query.prepareSQL(QueryBuilder(false))
-
-
-                println(b)
-
                 val r = query.singleOrNull()
-                println("ttt"+r)
-
                 r != null
             }catch (e: Exception){
                 println("ERROR in UserDAO.checkByUserNameAndPassword: ${e.message}")

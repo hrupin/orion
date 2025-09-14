@@ -4,14 +4,22 @@
       <h1 class="hero_h1">Підрозділ <span>ОРІОН</span> Бригади гвардії наступу <span>"Помста"</span></h1>
       <div class="hero_text_1">ставай частиною</div>
       <img class="img_orion" src="@/assets/img/orion.svg" alt="">
-      <a href="#" class="btn_yellow">Заповнюй анкету</a>
+      <a href="#" class="btn_yellow" @click.prevent="openModal">Заповнюй анкету</a>
     </div>
   </div>
 </template>
 
 <script>
+
+import emitter from '../../eventBus';
+
 export default {
-name: "HeroComponent"
+  name: "HeroComponent",
+  methods: {
+    openModal() {
+      emitter.emit('open-modal');
+    },
+  }
 }
 </script>
 
