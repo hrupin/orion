@@ -76,6 +76,11 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                         +"Home"
                     }
 
+                    a(classes = "navbar-item") {
+                        href = "/admin/faq"
+                        +"FAQ"
+                    }
+
                     div(classes = "navbar-item has-dropdown is-hoverable") {
                         a(classes = "navbar-link"){
                             href = "/admin/posts/index"
@@ -142,7 +147,12 @@ fun HTML.adminLayout(typeNotifications: String = "", messageNotification: String
                             }
                         }
                     }
+                    a(classes = "navbar-item") {
+                        href = "/admin/settings"
+                        +"Settigs"
+                    }
                 }
+
 
                 div("navbar-end") {
                     div("navbar-item") {
