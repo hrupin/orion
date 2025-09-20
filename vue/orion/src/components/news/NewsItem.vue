@@ -1,13 +1,13 @@
 <template>
-  <router-link :to="item.url"  v-for="item in newsList" :key="item.id" class="news_item">
+  <router-link :to="'/post/'+item.slug"  v-for="item in newsList" :key="item.id" class="news_item">
     <div class="news_item__img">
-      <img :src="item.image" alt="">
+      <img :src="'/api/image/'+item.image" alt="">
     </div>
     <div class="news_item__info">
-      <div class="news_item__category">{{ item.category }}</div>
-      <div class="news_item__name">{{ item.name }}</div>
-      <div class="news_item__date">{{ item.date }}</div>
-      <div class="news_item__anons">{{ item.anons }}</div>
+      <div class="news_item__category">{{ getNameByAlias(item.category) }}</div>
+      <div class="news_item__name">{{ item.title }}</div>
+      <div class="news_item__date">{{ item.publishedAt }}</div>
+      <div class="news_item__anons">{{ item.description }}</div>
     </div>
   </router-link>
 </template>
@@ -19,6 +19,16 @@ export default {
     newsList: {
       type: Array,
       required: true
+    },
+    categories: {
+      type: Array,
+      required: true
+    }
+  },
+  methods: {
+    getNameByAlias(alias) {
+      const category = this.categories.find(item => item.alias === alias)
+      return category ? category.name : null
     }
   }
 }

@@ -16,14 +16,14 @@ const routes = [
         ]
     },
     {
-        path: '/news',
+        path: '/posts',
         component: MainLayout,
         children: [
             { path: '', name: 'News', component: NewsPage }
         ]
     },
     {
-        path: '/news/:slug',
+        path: '/post/:slug',
         component: MainLayout,
         children: [
             { path: '', name: 'NewsDetailPage', component: NewsDetailPage, props: true }

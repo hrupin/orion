@@ -9,7 +9,7 @@
           <router-link class="header_nav_link" to="/" @click="isOpenMobileMenu = false" >Головна</router-link>
         </li>
         <li>
-          <router-link class="header_nav_link" to="/news" @click="isOpenMobileMenu = false" >Новини</router-link>
+          <router-link class="header_nav_link" to="/posts" @click="isOpenMobileMenu = false" >Новини</router-link>
         </li>
         <li>
           <router-link class="header_nav_link" to="/video" @click="isOpenMobileMenu = false" >Відео</router-link>
@@ -154,7 +154,7 @@ export default {
       this.form.birthday = timestamp
 
       try {
-        await axios.post('http://127.0.0.1:8080/api/questionnaire', this.form)
+        await axios.post('/api/questionnaire', this.form)
         this.submitSuccess = true
         this.submitResult = 'Форма успішно відправлена!'
         this.resetForm()

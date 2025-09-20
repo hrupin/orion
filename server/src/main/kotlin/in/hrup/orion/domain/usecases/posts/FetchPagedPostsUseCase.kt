@@ -5,8 +5,8 @@ import `in`.hrup.orion.data.repositories.db.tables.PostDAO
 
 object FetchPagedPostsUseCase {
 
-    fun execute(limit: Int, offset: Int, month: Int?, year: Int?, tag: String?): PostsDTO {
-        val postsData = PostDAO.fetchPaged(limit = limit, offset = offset, month = month, year = year, tag = tag)
+    fun execute(limit: Int, offset: Int, month: Int?, year: Int?, category: String?, tag: String?): PostsDTO {
+        val postsData = PostDAO.fetchPaged(limit = limit, offset = offset, month = month, year = year, category = category, tag = tag)
         val postsCount = PostDAO.count()
         val currentPage = if (limit > 0) {
             (offset / limit) + 1

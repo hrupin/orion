@@ -10,22 +10,31 @@ import `in`.hrup.orion.presentation.ui.components.fileField
 import `in`.hrup.orion.presentation.ui.components.renderTree
 import `in`.hrup.orion.presentation.ui.components.selectField
 import `in`.hrup.orion.presentation.ui.components.textareaField
-import kotlinx.html.ButtonType
-import kotlinx.html.FormEncType
-import kotlinx.html.FormMethod
-import kotlinx.html.InputType
-import kotlinx.html.SECTION
-import kotlinx.html.br
-import kotlinx.html.button
-import kotlinx.html.div
-import kotlinx.html.form
+import kotlinx.html.*
 
 fun SECTION.settingsScreen(settings: List<CustomData>) {
 
+    val socials = settings.filter { it.id < 8 }
+    val contacts = settings.filter { it.id >= 8 }
+
     form(classes = "box", action = "/admin/settings", method = FormMethod.post, encType = FormEncType.multipartFormData) {
 
-        settings.forEach {
-            field(it.name, it.name, it.value)
+        div(classes = "box"){
+            h2(classes = "title") {
+                +"Social media block"
+            }
+            socials.forEach {
+                field(it.name, it.name, it.value)
+            }
+        }
+
+        div(classes = "box"){
+            h2(classes = "title") {
+                +"Contacts block"
+            }
+            contacts.forEach {
+                field(it.name, it.name, it.value)
+            }
         }
 
         br{}

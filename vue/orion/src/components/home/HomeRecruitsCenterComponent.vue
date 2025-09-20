@@ -67,7 +67,7 @@ export default {
     },
     async fetchRecruitmentData() {
       try {
-        const response = await axios.get('http://127.0.0.1:8080/api/settings');
+        const response = await axios.get('/api/settings');
         this.recruitmentCenter = response.data;
       } catch (error) {
         console.error('Error loading recruitment center data:', error);

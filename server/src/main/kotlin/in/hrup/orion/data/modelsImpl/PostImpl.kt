@@ -1,22 +1,24 @@
 package `in`.hrup.orion.data.modelsImpl
 
 import `in`.hrup.orion.domain.models.Post
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class PostImpl(
-    override val id: Long,
-    override val title: String,
-    override val slug: String,
-    override val content: String,
-    override val description: String,
-    override val tags: String,
-    override val seoTitle: String,
-    override val image: String,
-    override val category: String,
-    override val seoDescription: String,
-    override val seoKeywords: String,
-    override val seoCanonicalUrl: String,
-    override val published: Boolean,
-    override val publishedAt: Long = 0,
-    override val updatedAt: Long = 0,
-    override val createdAt: Long = 0
-): Post
+    val id: Long,
+    val title: String,
+    val slug: String,
+    val content: String,
+    val description: String,
+    val tags: String,
+    val seoTitle: String,
+    val image: String,
+    val category: String,
+    val seoDescription: String,
+    val seoKeywords: String,
+    val seoCanonicalUrl: String,
+    val published: Boolean,
+    val publishedAt: Long = 0,
+    val updatedAt: Long = 0,
+    val createdAt: Long = 0
+)//: Post

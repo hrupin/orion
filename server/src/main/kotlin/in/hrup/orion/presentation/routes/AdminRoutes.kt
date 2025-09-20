@@ -6,6 +6,7 @@ import `in`.hrup.orion.data.modelsImpl.PostImpl
 import `in`.hrup.orion.data.modelsImpl.QuestionnaireImpl
 import `in`.hrup.orion.data.modelsImpl.VideoImpl
 import `in`.hrup.orion.domain.usecases.api.GetFaqsUseCase
+import `in`.hrup.orion.domain.usecases.api.GetSettingsUseCase
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
@@ -45,21 +46,10 @@ import `in`.hrup.orion.domain.usecases.videos.PublishUnpublishVideoUseCase
 import `in`.hrup.orion.domain.usecases.videos.RemoveVideoByIdUseCase
 import `in`.hrup.orion.domain.utils.FileUtil
 import `in`.hrup.orion.domain.utils.Tree
-import `in`.hrup.orion.presentation.controllers.CategoriesController
-import `in`.hrup.orion.presentation.controllers.FaqController
-import `in`.hrup.orion.presentation.controllers.PostsController
-import `in`.hrup.orion.presentation.controllers.VideosController
+import `in`.hrup.orion.presentation.controllers.*
 import `in`.hrup.orion.presentation.ui.components.NotificationType
 import `in`.hrup.orion.presentation.ui.layouts.adminLayout
-import `in`.hrup.orion.presentation.ui.screens.site.createCategoryScreen
-import `in`.hrup.orion.presentation.ui.screens.site.createPostScreen
-import `in`.hrup.orion.presentation.ui.screens.site.createVideoScreen
-import `in`.hrup.orion.presentation.ui.screens.site.editScreen
-import `in`.hrup.orion.presentation.ui.screens.site.faqScreen
-import `in`.hrup.orion.presentation.ui.screens.site.indexCategoriesScreen
-import `in`.hrup.orion.presentation.ui.screens.site.indexPostScreen
-import `in`.hrup.orion.presentation.ui.screens.site.indexScreen
-import `in`.hrup.orion.presentation.ui.screens.site.indexVideoScreen
+import `in`.hrup.orion.presentation.ui.screens.site.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
@@ -230,6 +220,52 @@ fun Application.adminRoutes() {
                     }
                 }
             }
+        }
+
+        get("/admin/settings"){
+            var pathOnly = call.request.path()
+            val currentUrl = call.request.uri
+            val settings = GetSettingsUseCase.execute()
+            call.respondHtml {
+                adminLayout {
+                    settingsScreen(
+                        settings = settings
+                    )
+                }
+            }
+        }
+
+        post("/admin/settings"){
+            val controller = SettingsController()
+            val model = controller.save(call = call)
+            val settings = GetSettingsUseCase.execute()
+            call.respondHtml {
+                adminLayout {
+                    settingsScreen(
+                        settings = settings
+                    )
+                }
+            }
+
+//            if(AddOrUpdateFaqUseCase.execute(model = model)){
+//                call.respondHtml {
+//                    adminLayout {
+//                        faqScreen(
+//                            faqs = GetFaqsUseCase.execute()
+//                        )
+//                    }
+//                }
+//            }
+//            else{
+//                call.respondHtml {
+//                    adminLayout {
+//                        faqScreen(
+//                            faqs = GetFaqsUseCase.execute(),
+//                            faq = model
+//                        )
+//                    }
+//                }
+//            }
         }
 
         post("/admin/site"){
@@ -445,6 +481,7 @@ fun Application.adminRoutes() {
                 offset = offset,
                 month = null,
                 year = null,
+                category = null,
                 tag = null
             )
             call.respondHtml {

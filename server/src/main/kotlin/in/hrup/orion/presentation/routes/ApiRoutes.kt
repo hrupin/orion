@@ -11,15 +11,17 @@ import `in`.hrup.orion.domain.usecases.category.GetRandomTagsUseCase
 import `in`.hrup.orion.domain.usecases.posts.FetchPagedPostsUseCase
 import `in`.hrup.orion.domain.usecases.questionnaire.CreateQuestionnaireUseCase
 import `in`.hrup.orion.domain.usecases.videos.FetchPagedVideosUseCase
+import `in`.hrup.orion.domain.utils.FileUtil
 import `in`.hrup.orion.presentation.queries.PostsQueryParams
 import `in`.hrup.orion.presentation.queries.VideosQueryParams
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.request.receive
-import io.ktor.server.response.respond
+import io.ktor.server.response.*
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import java.io.File
 
 fun Application.apiRoutes() {
 
@@ -40,7 +42,52 @@ fun Application.apiRoutes() {
                 offset = offset,
                 month = params.month,
                 year = params.year,
+                category = null,
                 tag = params.tag
+            )
+            call.respond(result)
+        }
+
+        get("api/category/{category}") {
+            val qp = call.request.queryParameters
+            val category = call.parameters["category"]
+            val params = PostsQueryParams(
+                page = qp["page"]?.toIntOrNull() ?: 1,
+                month = qp["month"]?.toIntOrNull(),
+                year = qp["year"]?.toIntOrNull(),
+                tag = qp["tag"]
+            )
+            val limit = 20
+            val offset = 0
+            val result = FetchPagedPostsUseCase.execute(
+                limit = limit,
+                offset = offset,
+                month = params.month,
+                year = params.year,
+                category = category,
+                tag = params.tag
+            )
+            call.respond(result)
+        }
+
+        get("api/tag/{tag}") {
+            val qp = call.request.queryParameters
+            val t: String? = call.parameters["tag"]
+            val params = PostsQueryParams(
+                page = qp["page"]?.toIntOrNull() ?: 1,
+                month = qp["month"]?.toIntOrNull(),
+                year = qp["year"]?.toIntOrNull(),
+                tag = qp["tag"]
+            )
+            val limit = 20
+            val offset = 0
+            val result = FetchPagedPostsUseCase.execute(
+                limit = limit,
+                offset = offset,
+                month = params.month,
+                year = params.year,
+                category = null,
+                tag = t
             )
             call.respond(result)
         }
@@ -96,6 +143,21 @@ fun Application.apiRoutes() {
             else{
                 call.respond(HttpStatusCode.BadRequest)
             }
+        }
+
+        get("api/image/{image}"){
+            val fileName = call.parameters["image"] ?: ""
+
+            val imageFile = File("${FileUtil.getDirMain()}/posts", fileName)
+
+            println("IMAGE ==>> ${imageFile.absolutePath}")
+
+            if (!imageFile.exists() || !imageFile.isFile) {
+                call.respond(HttpStatusCode.NotFound, "Image file not found on disk.")
+                return@get
+            }
+
+            call.respondFile(imageFile)
         }
 
     }

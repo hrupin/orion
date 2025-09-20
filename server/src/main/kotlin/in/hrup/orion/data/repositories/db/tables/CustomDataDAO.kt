@@ -43,6 +43,20 @@ object CustomDataDAO: LongIdTable("data") {
         }
     }
 
+    fun updateByName(model: CustomDataImpl): Boolean{
+        return transaction {
+            try{
+                update({ CustomDataDAO.name.eq(model.name) }){
+                    it[value] = model.value
+                } > 0
+            }
+            catch (e: Exception){
+                println("ERROR in CustomDataDAO.updateByName: ${e.message}")
+                false
+            }
+        }
+    }
+
     fun fetchByIds(ids: List<Long>): List<CustomDataImpl>{
         return transaction {
             try{

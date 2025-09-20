@@ -71,6 +71,7 @@
 <script>
 import Breadcrumb from "@/components/Breadcrumb";
 import NewsSidebar from "@/components/news/NewsSidebar";
+import axios from "axios";
 
 export default {
   name: "NewsDetailPage",
@@ -78,11 +79,30 @@ export default {
   data() {
     return {
       breadcrumb: [
-        { label: 'Новини', link: '/news' },
+        { label: 'Новини', link: '/posts' },
         { label: 'Останні здобутки підрозділу' },
-      ]
+      ],
+      categories: {
+        type: Array,
+        required: true
+      },
+      post: {}
     }
   },
+  methods: {
+    getNameByAlias(alias) {
+      const category = this.categories.find(item => item.alias === alias)
+      return category ? category.name : null
+    },
+    async fetchCategories() {
+      try {
+        const response = await axios.get('/api/categories');
+        this.categories = response.data;
+      } catch (error) {
+        console.error('Error loading recruitment center data:', error);
+      }
+    }
+  }
 }
 </script>
 

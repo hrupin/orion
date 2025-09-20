@@ -9,7 +9,7 @@
         <img src="@/assets/img/homenav2.jpg" alt="">
         <div class="home_nav__info">Про нас</div>
       </a>
-      <a href="#" class="home_nav__item">
+      <a href="/posts" class="home_nav__item">
         <img src="@/assets/img/homenav1.jpg" alt="">
         <div class="home_nav__info">Новини</div>
       </a>

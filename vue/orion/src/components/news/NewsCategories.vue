@@ -25,7 +25,7 @@ export default {
   methods: {
     async fetchCategories() {
       try {
-        const response = await axios.get('http://127.0.0.1:8080/api/categories');
+        const response = await axios.get('/api/categories');
         this.categories = response.data;
       } catch (error) {
         console.error('Error loading recruitment center data:', error);
